@@ -42,22 +42,47 @@
     .screen.active{display:block}
 
     .logo-wrap{
+      position:relative;
       text-align:center;
       margin-bottom:14px;
+      padding:18px 14px;
+      border-radius:30px;
+      overflow:hidden;
+      min-height:220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        linear-gradient(rgba(9,11,16,.42), rgba(9,11,16,.62)),
+        url("background-behind-logo.png") center/cover no-repeat;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow);
+    }
+
+    .logo-wrap::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at center, rgba(215,180,109,.12), transparent 48%);
+      pointer-events:none;
     }
 
     .logo-wrap img{
+      position:relative;
+      z-index:1;
       width:320px;
       max-width:90%;
       display:block;
-      margin:0 auto 10px;
+      margin:0 auto;
       transition: transform 0.3s ease;
+      filter:drop-shadow(0 10px 28px rgba(0,0,0,.34));
     }
 
     .logo-wrap img:hover{transform: scale(1.05)}
 
     @media (max-width:480px){
-      .logo-wrap img{width:260px;}
+      .logo-wrap{min-height:180px;padding:14px 10px;border-radius:24px;}
+      .logo-wrap img{width:250px;}
     }
 
     .card{
@@ -155,18 +180,19 @@
     .slots-grid{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
+      gap:8px;
     }
 
     .time-chip{
-      min-height:52px;
-      border-radius:18px;
+      min-height:42px;
+      padding:8px 6px;
+      border-radius:14px;
       border:1px solid var(--line);
       background:#171c27;
       color:var(--text);
       cursor:pointer;
       font-weight:800;
-      font-size:15px;
+      font-size:14px;
       transition:.2s transform,.2s border-color,.2s background,.2s opacity;
     }
 
@@ -301,7 +327,10 @@
     @keyframes logoIntro{0%{opacity:0;transform:scale(.82)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
     @keyframes logoFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
 
-    @media (max-width:640px){.slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+    @media (max-width:640px){
+      .slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+      .time-chip{min-height:40px;font-size:13px;border-radius:13px;}
+    }
     @media (max-width:560px){
       .appointments-table th,.appointments-table td{font-size:10px;padding-right:3px;padding-left:3px}
       .appointments-table{border-spacing:0 3px}
@@ -315,7 +344,8 @@
       .success-note{font-size:15px}
     }
     @media (max-width:420px){
-      .slots-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .slots-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
+      .time-chip{min-height:38px;padding:7px 5px;font-size:12px;border-radius:12px;}
       .day-chip{min-width:84px;padding:11px 8px}
       .success-modal{padding:24px 18px 20px}
       .success-icon{width:66px;height:66px;font-size:30px}
