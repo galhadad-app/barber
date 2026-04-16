@@ -255,11 +255,11 @@
     .modal-backdrop.show{display:flex}
 
     .modal{
-      width:min(92vw,360px);background:linear-gradient(180deg,#171c26 0%, #121722 100%);
-      border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:18px;
+      width:min(92vw,360px);background:linear-gradient(180deg,#151922 0%, #111621 100%);
+      border:1px solid rgba(255,255,255,.06);border-radius:22px;box-shadow:0 18px 44px rgba(0,0,0,.34);padding:16px 16px 14px;
     }
-    .modal h3{margin:0 0 14px 0;font-size:20px;text-align:center}
-    .modal p{margin:0 0 12px 0;color:var(--muted);line-height:1.7;font-size:14px;text-align:center}
+    .modal h3{margin:0 0 10px 0;font-size:19px;text-align:center;font-weight:800}
+    .modal p{margin:0 0 10px 0;color:rgba(255,255,255,.5);line-height:1.65;font-size:13px;text-align:center}
 
     .success-modal{
       width:min(92vw,560px);background:linear-gradient(180deg,#f7f4ee 0%, #f0ebe2 100%);color:#2b2116;
@@ -322,10 +322,22 @@
     .appointments-table th:nth-child(3), .appointments-table td:nth-child(3){width:16%}
     .appointments-table th:nth-child(4), .appointments-table td:nth-child(4){width:36%}
 
-    .details-grid{display:grid;gap:10px;margin-top:10px}
-    .detail-box{background:#181d28;border:1px solid var(--line);border-radius:18px;padding:12px 14px}
-    .detail-label{color:var(--muted);font-size:12px;margin-bottom:6px}
-    .detail-value{font-size:15px;color:var(--text);line-height:1.7;word-break:break-word}
+    .details-grid{display:grid;gap:0;margin-top:10px}
+    .detail-box{
+      background:transparent;
+      border:none;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      border-radius:0;
+      padding:12px 2px;
+      box-shadow:none;
+    }
+    .detail-box:first-child{padding-top:4px}
+    .detail-box:last-child{border-bottom:none;padding-bottom:4px}
+    .detail-label{color:rgba(255,255,255,.42);font-size:11px;margin-bottom:3px;letter-spacing:.01em}
+    .detail-value{font-size:14px;color:rgba(255,255,255,.92);line-height:1.6;word-break:break-word}
+    .detail-edit{width:100%;background:transparent;border:none;outline:none;padding:0;margin:0;color:rgba(255,255,255,.92);font-size:14px;line-height:1.6;font-family:inherit;text-align:right;border-radius:0}
+    .detail-edit::placeholder{color:rgba(255,255,255,.28)}
+    textarea.detail-edit{resize:vertical;min-height:34px;max-height:120px}
 
     #loader{
       position:fixed;inset:0;background:
@@ -513,15 +525,14 @@
   <div class="modal-backdrop" id="detailsModal">
     <div class="modal">
       <h3>פרטי תור</h3>
-      <p>כאן אפשר לראות פרטים נוספים על ההזמנה שנקבעה.</p>
       <div class="details-grid">
         <div class="detail-box"><div class="detail-label">שם</div><div class="detail-value" id="detailName">-</div></div>
         <div class="detail-box"><div class="detail-label">תאריך</div><div class="detail-value" id="detailDate">-</div></div>
         <div class="detail-box"><div class="detail-label">שעה</div><div class="detail-value" id="detailTime">-</div></div>
         <div class="detail-box"><div class="detail-label">מספר פלאפון</div><div class="detail-value" id="detailPhone">-</div></div>
         <div class="detail-box"><div class="detail-label">שירות</div><div class="detail-value" id="detailService">-</div></div>
-        <div class="detail-box"><div class="detail-label">הערות</div><div class="detail-value" id="detailNotes">אין הערות</div></div>
-        <div class="detail-box"><div class="detail-label">מקור הזמנה</div><div class="detail-value" id="detailSource">-</div></div>
+        <div class="detail-box"><div class="detail-label">הערות</div><textarea class="detail-edit" id="detailNotesInput" rows="2" placeholder="אין הערות"></textarea></div>
+        <div class="detail-box"><div class="detail-label">מקור הזמנה</div><input class="detail-edit" id="detailSourceInput" type="text" placeholder="-" /></div>
       </div>
       <button class="secondary-btn" id="closeDetailsBtn">סגור</button>
     </div>
@@ -553,6 +564,8 @@
     const visibleDays = 14;
     let selectedDate = null;
     let selectedTime = null;
+    let activeDetailsItem = null;
+    let detailsInitialState = { notes:'', source:'' };
 
     const appointments = [
       {name:"יוסי כהן", phone:"0501234567", service:"תספורת מבוגר - 60₪", date:"2026-04-18", time:"09:30", status:"תפוס", source:"דוגמה", notes:"מבקש קצר בצדדים"},
@@ -740,17 +753,51 @@
       });
     }
 
+    function updateDetailsButtonState(){
+      const notes = document.getElementById('detailNotesInput').value.trim();
+      const source = document.getElementById('detailSourceInput').value.trim();
+      const changed = notes !== detailsInitialState.notes || source !== detailsInitialState.source;
+      document.getElementById('closeDetailsBtn').textContent = changed ? 'שמור וסגור' : 'סגור';
+      return changed;
+    }
+
     function openDetailsModal(item){
+      activeDetailsItem = item;
+      const notes = item.notes && item.notes.trim() ? item.notes.trim() : '';
+      const source = item.source && item.source.trim() ? item.source.trim() : '';
+      detailsInitialState = { notes, source };
       document.getElementById('detailName').textContent = item.name || '-';
       document.getElementById('detailDate').innerHTML = item.date === formatDateKey(today) ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(item.date);
       document.getElementById('detailTime').textContent = item.time || '-';
       document.getElementById('detailPhone').textContent = item.phone || '-';
       document.getElementById('detailService').textContent = item.service || '-';
-      document.getElementById('detailNotes').textContent = item.notes && item.notes.trim() ? item.notes : 'אין הערות';
-      document.getElementById('detailSource').textContent = item.source || '-';
+      document.getElementById('detailNotesInput').value = notes;
+      document.getElementById('detailSourceInput').value = source;
+      updateDetailsButtonState();
       document.getElementById('detailsModal').classList.add('show');
     }
-    function closeDetailsModal(){ document.getElementById('detailsModal').classList.remove('show'); }
+
+    function closeDetailsModal(){
+      document.getElementById('detailsModal').classList.remove('show');
+      activeDetailsItem = null;
+    }
+
+    function saveAndCloseDetailsModal(){
+      if(activeDetailsItem){
+        const changed = updateDetailsButtonState();
+        if(changed){
+          activeDetailsItem.notes = document.getElementById('detailNotesInput').value.trim();
+          activeDetailsItem.source = document.getElementById('detailSourceInput').value.trim() || '-';
+          detailsInitialState = {
+            notes: activeDetailsItem.notes,
+            source: activeDetailsItem.source === '-' ? '' : activeDetailsItem.source
+          };
+          renderOwnerAppointments();
+          showToast('השינויים נשמרו.');
+        }
+      }
+      closeDetailsModal();
+    }
 
     function launchSuccessConfetti(){
       const wrap = document.getElementById('successConfetti');
@@ -847,7 +894,9 @@
 
     document.getElementById('bookBtn').addEventListener('click', bookAppointment);
     document.getElementById('closeCodeBtn').addEventListener('click', closeOwnerModal);
-    document.getElementById('closeDetailsBtn').addEventListener('click', closeDetailsModal);
+    document.getElementById('closeDetailsBtn').addEventListener('click', saveAndCloseDetailsModal);
+    document.getElementById('detailNotesInput').addEventListener('input', updateDetailsButtonState);
+    document.getElementById('detailSourceInput').addEventListener('input', updateDetailsButtonState);
     document.getElementById('closeSuccessBtn').addEventListener('click', closeSuccessModal);
     document.getElementById('backToClientBtn').addEventListener('click', () => {
       document.getElementById('ownerScreen').classList.remove('active');
@@ -863,7 +912,7 @@
       }
     });
     document.getElementById('codeModal').addEventListener('click', (e) => { if(e.target.id === 'codeModal') closeOwnerModal(); });
-    document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') closeDetailsModal(); });
+    document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') saveAndCloseDetailsModal(); });
     document.getElementById('successModal').addEventListener('click', (e) => { if(e.target.id === 'successModal') closeSuccessModal(); });
     document.querySelectorAll('.owner-tab').forEach(tab => tab.addEventListener('click', () => {
       document.querySelectorAll('.owner-tab').forEach(t => t.classList.remove('active'));
