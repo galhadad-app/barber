@@ -47,11 +47,22 @@
     }
 
     .logo-wrap img{
-      width:220px;
-      max-width:80%;
+      width:320px;
+      max-width:90%;
       display:block;
       margin:0 auto 10px;
+      transition: transform 0.3s ease;
     }
+
+.logo-wrap img:hover{
+      transform: scale(1.05);
+}
+
+@media (max-width:480px){
+  .logo-wrap img{
+    width:260px;
+  }
+}
 
     .card{
       background:linear-gradient(180deg,#151922 0%, #111621 100%);
