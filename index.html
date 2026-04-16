@@ -267,9 +267,9 @@
     .owner-tab.active{background:rgba(215,180,109,.12);color:#f7e7c3;border-color:rgba(215,180,109,.18)}
     .owner-panel{display:none}.owner-panel.active{display:block}
 
-    .appointments-table{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
-    .appointments-table th{color:var(--muted);font-size:12px;text-align:right;padding:0 6px 4px;white-space:nowrap}
-    .appointments-table td{background:#181d28;padding:10px 6px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .appointments-table{width:100%;border-collapse:separate;border-spacing:0 4px;table-layout:fixed}
+    .appointments-table th{color:var(--muted);font-size:11px;text-align:right;padding:0 4px 2px;white-space:nowrap}
+    .appointments-table td{background:#181d28;padding:7px 4px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
     .appointments-table td:first-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
     .appointments-table td:last-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
     .table-wrap{overflow:auto}
@@ -277,6 +277,12 @@
     .today-badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(126,224,163,.14);color:#b9f4cd;border:1px solid rgba(126,224,163,.2);font-weight:800;font-size:12px}
     .clickable-row{cursor:pointer;transition:.2s transform,.2s opacity}
     .clickable-row:hover td{background:#202634}
+    .phone-link{color:#7ee0a3;text-decoration:none;font-weight:700}
+    .phone-link:hover{opacity:.9;text-decoration:underline}
+    .appointments-table th:nth-child(1), .appointments-table td:nth-child(1){width:24%}
+    .appointments-table th:nth-child(2), .appointments-table td:nth-child(2){width:24%}
+    .appointments-table th:nth-child(3), .appointments-table td:nth-child(3){width:16%}
+    .appointments-table th:nth-child(4), .appointments-table td:nth-child(4){width:36%}
 
     .details-grid{display:grid;gap:10px;margin-top:10px}
     .detail-box{background:#181d28;border:1px solid var(--line);border-radius:18px;padding:12px 14px}
@@ -297,7 +303,12 @@
 
     @media (max-width:640px){.slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
     @media (max-width:560px){
-      .appointments-table th,.appointments-table td{font-size:12px;padding-right:5px;padding-left:5px}
+      .appointments-table th,.appointments-table td{font-size:10px;padding-right:3px;padding-left:3px}
+      .appointments-table{border-spacing:0 3px}
+      .appointments-table th:nth-child(1), .appointments-table td:nth-child(1){width:23%}
+      .appointments-table th:nth-child(2), .appointments-table td:nth-child(2){width:24%}
+      .appointments-table th:nth-child(3), .appointments-table td:nth-child(3){width:15%}
+      .appointments-table th:nth-child(4), .appointments-table td:nth-child(4){width:38%}
       .success-modal h3{font-size:28px}
       .success-modal .success-subtitle{font-size:16px}
       .success-datetime{font-size:23px}
@@ -399,7 +410,7 @@
           <div class="table-wrap">
             <table class="appointments-table">
               <thead>
-                <tr><th>שם</th><th>תאריך</th><th>שעה</th></tr>
+                <tr><th>שם</th><th>תאריך</th><th>שעה</th><th>פלאפון</th></tr>
               </thead>
               <tbody id="ownerAppointmentsBody"></tbody>
             </table>
@@ -642,7 +653,8 @@
       const sorted = [...appointments].sort((a,b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
       body.innerHTML = sorted.map((a, index) => {
         const dateDisplay = a.date === todayKey ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(a.date);
-        return `<tr class="clickable-row" data-index="${index}"><td>${a.name}</td><td>${dateDisplay}</td><td>${a.time}</td></tr>`;
+        const phoneDisplay = a.phone ? `<a class="phone-link" href="tel:${a.phone}" onclick="event.stopPropagation()">${a.phone}</a>` : '-';
+        return `<tr class="clickable-row" data-index="${index}"><td>${a.name}</td><td>${dateDisplay}</td><td>${a.time}</td><td>${phoneDisplay}</td></tr>`;
       }).join('');
       body.querySelectorAll('.clickable-row').forEach((row) => {
         row.addEventListener('click', () => openDetailsModal(sorted[Number(row.dataset.index)]));
