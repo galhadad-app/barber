@@ -505,9 +505,7 @@
 
   <div class="modal-backdrop" id="codeModal">
     <div class="modal">
-      <h3>כניסת בעל המספרה</h3>
       <input id="ownerCodeInput" class="owner-code-input" inputmode="numeric" maxlength="4" placeholder="קוד בן 4 ספרות">
-      <button class="primary-btn" id="submitCodeBtn">כניסה</button>
       <button class="secondary-btn" id="closeCodeBtn">ביטול</button>
     </div>
   </div>
@@ -794,13 +792,19 @@
     }
     function closeOwnerModal(){ document.getElementById('codeModal').classList.remove('show'); }
     function submitOwnerCode(){
-      const code = document.getElementById('ownerCodeInput').value.trim();
+      const input = document.getElementById('ownerCodeInput');
+      const code = input.value.replace(/\D/g, '').slice(0,4);
+      if(code.length < 4) return;
       if(code === OWNER_CODE){
         closeOwnerModal();
         document.getElementById('clientScreen').classList.remove('active');
         document.getElementById('ownerScreen').classList.add('active');
         renderOwnerAppointments();
-      } else showToast('קוד שגוי.');
+      } else {
+        showToast('קוד שגוי.');
+        input.value = '';
+        setTimeout(() => input.focus(), 50);
+      }
     }
 
     function updateBookButtonState(){
@@ -842,7 +846,6 @@
     }
 
     document.getElementById('bookBtn').addEventListener('click', bookAppointment);
-    document.getElementById('submitCodeBtn').addEventListener('click', submitOwnerCode);
     document.getElementById('closeCodeBtn').addEventListener('click', closeOwnerModal);
     document.getElementById('closeDetailsBtn').addEventListener('click', closeDetailsModal);
     document.getElementById('closeSuccessBtn').addEventListener('click', closeSuccessModal);
@@ -853,6 +856,12 @@
     document.getElementById('clientPhone').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
     document.getElementById('clientService').addEventListener('change', updateBookButtonState);
     document.getElementById('ownerCodeInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitOwnerCode(); });
+    document.getElementById('ownerCodeInput').addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+      if(e.target.value.length === 4){
+        submitOwnerCode();
+      }
+    });
     document.getElementById('codeModal').addEventListener('click', (e) => { if(e.target.id === 'codeModal') closeOwnerModal(); });
     document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') closeDetailsModal(); });
     document.getElementById('successModal').addEventListener('click', (e) => { if(e.target.id === 'successModal') closeSuccessModal(); });
