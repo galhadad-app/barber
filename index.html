@@ -755,9 +755,75 @@
       .success-icon{width:66px;height:66px;font-size:30px}
       .success-btn{width:100%}
     }
-  </style>
+
+    #loader{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at center, rgba(215,180,109,.12), transparent 40%),
+        linear-gradient(180deg,#0b0e14 0%, #0f131b 100%);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
+      transition:opacity .6s ease, visibility .6s ease;
+      overflow:hidden;
+    }
+
+    #loader::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at top right, rgba(215,180,109,.10), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(215,180,109,.06), transparent 28%);
+      pointer-events:none;
+    }
+
+    #loader.hide{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    #loader img{
+      position:relative;
+      z-index:2;
+      width:260px;
+      max-width:82vw;
+      animation:logoIntro 1.15s ease, logoFloat 2.2s ease-in-out infinite 1.15s;
+      filter:drop-shadow(0 10px 28px rgba(0,0,0,.30));
+    }
+
+    @keyframes logoIntro{
+      0%{
+        opacity:0;
+        transform:scale(.82);
+      }
+      60%{
+        opacity:1;
+        transform:scale(1.04);
+      }
+      100%{
+        opacity:1;
+        transform:scale(1);
+      }
+    }
+
+    @keyframes logoFloat{
+      0%{transform:translateY(0)}
+      50%{transform:translateY(-6px)}
+      100%{transform:translateY(0)}
+    }
+
+</style>
 </head>
 <body>
+
+  <div id="loader">
+    <img src="logo.png" alt="לוגו">
+  </div>
+
   <div class="app">
     <section id="clientScreen" class="screen active">
       <section class="logo-wrap">
@@ -1390,6 +1456,17 @@
   month.addEventListener('mouseleave', cancelPress);
   month.addEventListener('touchend', cancelPress);
 })();
+
+
+
+    window.addEventListener('load', () => {
+      const loader = document.getElementById('loader');
+      if(!loader) return;
+
+      setTimeout(() => {
+        loader.classList.add('hide');
+      }, 1300);
+    });
 
 </script>
 </body>
