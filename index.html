@@ -353,7 +353,46 @@
       .success-icon{width:66px;height:66px;font-size:30px}
       .success-btn{width:100%}
     }
-  </style>
+  .animated-panel{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg, #171c26 0%, #10151d 100%);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    inset 0 -1px 0 rgba(0,0,0,.32),
+    0 18px 36px rgba(0,0,0,.28);
+}
+
+.animated-panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    radial-gradient(ellipse at top, rgba(215,180,109,.10), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 24%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.animated-panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 120%, rgba(0,0,0,.22), transparent 48%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.animated-panel > *{
+  position:relative;
+  z-index:1;
+}
+</style>
 </head>
 <body>
   <div id="loader"><img src="logo.png" alt="לוגו"></div>
@@ -362,7 +401,7 @@
     <section id="clientScreen" class="screen active">
       <section class="logo-wrap"><img src="logo.png" alt="לוגו המספרה"></section>
 
-      <section class="card">
+      <section class="card animated-panel">
         <div class="booking-head">
           <h2 class="booking-title" id="bookingTitle" title="כניסת בעל המספרה">קביעת תור!</h2>
           
@@ -379,7 +418,7 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card animated-panel">
         <div class="section-title">
           <h2>שעות זמינות</h2>
         </div>
@@ -392,7 +431,7 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card animated-panel">
         <div class="section-title">
           <h2>פרטי לקוח</h2>
           <span>השלמת בקשת תור</span>
