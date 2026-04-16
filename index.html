@@ -321,24 +321,24 @@
 
       <section class="card">
         <div class="booking-head">
-          <h2 class="booking-title" id="bookingTitle" title="כניסת בעל המספרה">לוח סלוטים</h2>
-          <span style="color:var(--muted);font-size:12px">ימים ושעות זמינות</span>
+          <h2 class="booking-title" id="bookingTitle" title="כניסת בעל המספרה">קביעת תור!</h2>
+          <span style="color:var(--muted);font-size:12px"ת</span>
         </div>
 
         <div class="section-title" style="margin-bottom:8px">
           <h2>בחירת יום</h2>
-          <span>בלי לוח שנה, ישר למה שפנוי</span>
         </div>
         <div class="days-strip" id="daysStrip"></div>
+
       </section>
 
       <section class="card">
         <div class="section-title">
           <h2>שעות זמינות</h2>
-          <span>09:00–19:00 | שישי עד 13:00</span>
         </div>
 
         <div class="slots-grid" id="slotsGrid"></div>
+
       </section>
 
       <section class="card">
@@ -563,6 +563,8 @@
           chip.addEventListener('click', () => {
             selectedDate = new Date(date);
             selectedTime = null;
+            document.getElementById('selectedDayText').textContent = `${getDayLabel(date)} • ${formatDatePretty(date)}`;
+            document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
             renderDays();
             renderSlots();
           });
