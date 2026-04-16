@@ -1348,20 +1348,21 @@
     renderTimeline();
     renderOwnerAppointments();
   
-// Long-press on logo (1.5s) to open owner modal with vibration
+
+
+
+// לחיצה ארוכה על שם החודש לפתיחת אזור מנהל
 (function(){
-  const logo = document.querySelector('.logo-wrap img');
-  if(!logo) return;
+  const month = document.getElementById('monthLabel');
+  if(!month) return;
   let pressTimer = null;
 
-  function startPress(e){
+  function startPress(){
     pressTimer = setTimeout(() => {
       pressTimer = null;
-      if (navigator.vibrate) {
-        navigator.vibrate(40);
-      }
+      if (navigator.vibrate) navigator.vibrate(40);
       openOwnerModal();
-    }, 1500);
+    }, 1200);
   }
 
   function cancelPress(){
@@ -1371,12 +1372,12 @@
     }
   }
 
-  logo.addEventListener('mousedown', startPress);
-  logo.addEventListener('touchstart', startPress);
+  month.addEventListener('mousedown', startPress);
+  month.addEventListener('touchstart', startPress);
 
-  logo.addEventListener('mouseup', cancelPress);
-  logo.addEventListener('mouseleave', cancelPress);
-  logo.addEventListener('touchend', cancelPress);
+  month.addEventListener('mouseup', cancelPress);
+  month.addEventListener('mouseleave', cancelPress);
+  month.addEventListener('touchend', cancelPress);
 })();
 
 </script>
