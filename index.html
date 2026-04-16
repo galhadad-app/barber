@@ -137,7 +137,8 @@
     }
     .day-chip.selected .day-name,.day-chip.selected .day-date{color:#17120a}
     .day-chip.closed,.day-chip.past{opacity:.45;background:#141821;cursor:not-allowed}
-    
+
+    .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
     .legend-item{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
     .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
     .dot.free{background:var(--ok)}
@@ -321,6 +322,7 @@
       <section class="card">
         <div class="booking-head">
           <h2 class="booking-title" id="bookingTitle" title="כניסת בעל המספרה">לוח סלוטים</h2>
+          <span style="color:var(--muted);font-size:12px">ימים ושעות זמינות</span>
         </div>
 
         <div class="section-title" style="margin-bottom:8px">
@@ -329,6 +331,10 @@
         </div>
         <div class="days-strip" id="daysStrip"></div>
 
+        <div class="selected-summary">
+          <span>יום נבחר:</span>
+          <strong id="selectedDayText">עדיין לא נבחר יום</strong>
+        </div>
       </section>
 
       <section class="card">
