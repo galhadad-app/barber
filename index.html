@@ -560,7 +560,7 @@
               <tbody id="ownerAppointmentsBody"></tbody>
             </table>
           </div>
-          <div id="ownerEmpty" class="empty-state" style="display:none;">עדיין לא נקבעו תורים.</div>
+          <div id="ownerEmpty" class="empty-state" style="display:none;">עדיין לא נקבעו תורים עתידיים.</div>
         </div>
 
         <div id="customersPanel" class="owner-panel">
@@ -729,6 +729,14 @@
       const [h,m] = time.split(':').map(Number);
       const slotDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0, 0);
       return slotDate < new Date();
+    }
+
+    function isFutureOrTodayAppointment(item){
+      if(!item?.date || !item?.time) return false;
+      const [year, month, day] = item.date.split('-').map(Number);
+      const [hour, minute] = item.time.split(':').map(Number);
+      const appointmentDate = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0);
+      return appointmentDate >= new Date();
     }
 
     function getDateStatus(date){
@@ -902,10 +910,11 @@
       const body = document.getElementById('ownerAppointmentsBody');
       const empty = document.getElementById('ownerEmpty');
       body.innerHTML = '';
-      if(!appointments.length){ empty.style.display = 'block'; return; }
-      empty.style.display = 'none';
       const todayKey = formatDateKey(today);
-      const sorted = [...appointments].sort((a,b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
+      const upcomingAppointments = appointments.filter(isFutureOrTodayAppointment);
+      if(!upcomingAppointments.length){ empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      const sorted = [...upcomingAppointments].sort((a,b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
       body.innerHTML = sorted.map((a, index) => {
         const dateDisplay = a.date === todayKey ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(a.date);
         const phoneDisplay = a.phone ? `<a class="phone-link" href="tel:${a.phone}" onclick="event.stopPropagation()">${a.phone}</a>` : '-';
