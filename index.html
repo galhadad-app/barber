@@ -322,6 +322,16 @@
     .appointments-table th:nth-child(3), .appointments-table td:nth-child(3){width:16%}
     .appointments-table th:nth-child(4), .appointments-table td:nth-child(4){width:36%}
 
+    .customers-table{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
+    .customers-table th{color:var(--muted);font-size:11px;text-align:right;padding:0 6px 2px;white-space:nowrap}
+    .customers-table td{background:#181d28;padding:9px 6px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+    .customers-table td:first-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
+    .customers-table td:last-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
+    .customers-table th:nth-child(1), .customers-table td:nth-child(1){width:26%}
+    .customers-table th:nth-child(2), .customers-table td:nth-child(2){width:24%}
+    .customers-table th:nth-child(3), .customers-table td:nth-child(3){width:30%}
+    .customers-table th:nth-child(4), .customers-table td:nth-child(4){width:20%}
+
     .details-grid{display:grid;gap:0;margin-top:10px}
     .detail-box{
       background:transparent;
@@ -492,6 +502,7 @@
       <section class="card">
         <div class="owner-tabs">
           <button class="owner-tab active" data-panel="appointmentsPanel">תורים</button>
+          <button class="owner-tab" data-panel="customersPanel">לקוחות</button>
         </div>
 
         <div id="appointmentsPanel" class="owner-panel active">
@@ -508,6 +519,22 @@
             </table>
           </div>
           <div id="ownerEmpty" class="empty-state" style="display:none;">עדיין לא נקבעו תורים.</div>
+        </div>
+
+        <div id="customersPanel" class="owner-panel">
+          <div class="section-title">
+            <h2>לקוחות</h2>
+            <span>ללא כפילויות לפי מספר פלאפון</span>
+          </div>
+          <div class="table-wrap">
+            <table class="customers-table">
+              <thead>
+                <tr><th>שם</th><th>פלאפון</th><th>שירות אחרון</th><th>סה"כ ביקורים</th></tr>
+              </thead>
+              <tbody id="ownerCustomersBody"></tbody>
+            </table>
+          </div>
+          <div id="ownerCustomersEmpty" class="empty-state" style="display:none;">עדיין לא נשמרו לקוחות.</div>
         </div>
       </section>
     </section>
@@ -735,6 +762,59 @@
       }
     }
 
+
+    function normalizePhone(phone){
+      return String(phone || '').replace(/\D/g, '');
+    }
+
+    function getUniqueCustomers(){
+      const customerMap = new Map();
+      appointments.forEach(item => {
+        const phone = normalizePhone(item.phone);
+        if(!phone) return;
+        const existing = customerMap.get(phone);
+        const itemDateTime = `${item.date || ''} ${item.time || ''}`.trim();
+        if(!existing){
+          customerMap.set(phone, {
+            name: item.name || '-',
+            phone,
+            service: item.service || '-',
+            visits: 1,
+            lastDate: item.date || '',
+            lastTime: item.time || '',
+            lastDateTime: itemDateTime
+          });
+          return;
+        }
+        existing.visits += 1;
+        const existingDateTime = `${existing.lastDate || ''} ${existing.lastTime || ''}`.trim();
+        if(itemDateTime > existingDateTime){
+          existing.name = item.name || existing.name;
+          existing.service = item.service || existing.service;
+          existing.lastDate = item.date || existing.lastDate;
+          existing.lastTime = item.time || existing.lastTime;
+          existing.lastDateTime = itemDateTime;
+        }
+      });
+      return [...customerMap.values()].sort((a,b) => (b.lastDateTime || '').localeCompare(a.lastDateTime || ''));
+    }
+
+    function renderOwnerCustomers(){
+      const body = document.getElementById('ownerCustomersBody');
+      const empty = document.getElementById('ownerCustomersEmpty');
+      const customers = getUniqueCustomers();
+      body.innerHTML = '';
+      if(!customers.length){
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      body.innerHTML = customers.map(customer => {
+        const phoneDisplay = customer.phone ? `<a class="phone-link" href="tel:${customer.phone}">${customer.phone}</a>` : '-';
+        return `<tr><td>${customer.name}</td><td>${phoneDisplay}</td><td>${customer.service || '-'}</td><td>${customer.visits}</td></tr>`;
+      }).join('');
+    }
+
     function renderOwnerAppointments(){
       const body = document.getElementById('ownerAppointmentsBody');
       const empty = document.getElementById('ownerEmpty');
@@ -793,6 +873,7 @@
             source: activeDetailsItem.source === '-' ? '' : activeDetailsItem.source
           };
           renderOwnerAppointments();
+          renderOwnerCustomers();
           showToast('השינויים נשמרו.');
         }
       }
@@ -847,6 +928,7 @@
         document.getElementById('clientScreen').classList.remove('active');
         document.getElementById('ownerScreen').classList.add('active');
         renderOwnerAppointments();
+        renderOwnerCustomers();
       } else {
         showToast('קוד שגוי.');
         input.value = '';
@@ -889,6 +971,7 @@
       renderDays();
       renderSlots();
       renderOwnerAppointments();
+      renderOwnerCustomers();
       updateBookButtonState();
     }
 
@@ -958,6 +1041,7 @@
     renderDays();
     renderSlots();
     renderOwnerAppointments();
+    renderOwnerCustomers();
     updateBookButtonState();
   </script>
 </body>
