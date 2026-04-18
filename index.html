@@ -327,12 +327,32 @@
     .customers-table td{background:#181d28;padding:9px 6px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
     .customers-table td:first-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}
     .customers-table td:last-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px}
-    .customers-table th:nth-child(1), .customers-table td:nth-child(1){width:26%}
-    .customers-table th:nth-child(2), .customers-table td:nth-child(2){width:24%}
+    .customers-table th:nth-child(1), .customers-table td:nth-child(1){width:40%}
+    .customers-table th:nth-child(2), .customers-table td:nth-child(2){width:30%}
     .customers-table th:nth-child(3), .customers-table td:nth-child(3){width:30%}
-    .customers-table th:nth-child(4), .customers-table td:nth-child(4){width:20%}
 
-    .details-grid{display:grid;gap:0;margin-top:10px}
+        .customers-search-wrap{
+      margin:4px 0 12px;
+    }
+    .customers-search-label{
+      display:block;
+      margin:0 4px 6px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .customers-search-input{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:18px;
+      padding:14px;
+      background:#0f131b;
+      color:var(--text);
+      border:1px solid var(--line);
+      font-size:14px;
+    }
+
+.details-grid{display:grid;gap:0;margin-top:10px}
     .detail-box{
       background:transparent;
       border:none;
@@ -348,6 +368,24 @@
     .detail-edit{width:100%;background:transparent;border:none;outline:none;padding:0;margin:0;color:rgba(255,255,255,.92);font-size:14px;line-height:1.6;font-family:inherit;text-align:right;border-radius:0}
     .detail-edit::placeholder{color:rgba(255,255,255,.28)}
     textarea.detail-edit{resize:vertical;min-height:34px;max-height:120px}
+
+    .customer-card-actions{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+    }
+    .danger-btn{
+      width:100%;
+      border:none;
+      border-radius:18px;
+      padding:14px 16px;
+      background:linear-gradient(135deg,#ff8a8a,#e05555);
+      color:#fff;
+      font-weight:900;
+      font-size:14px;
+      cursor:pointer;
+      box-shadow:0 12px 28px rgba(224,85,85,.18);
+    }
 
     #loader{
       position:fixed;inset:0;background:
@@ -470,8 +508,12 @@
 
         <div class="fields">
           <div>
-            <label>שם מלא</label>
-            <input id="clientName" placeholder="השם שלך" />
+            <label>שם פרטי</label>
+            <input id="clientFirstName" placeholder="השם שלך" />
+          </div>
+          <div>
+            <label>שם משפחה</label>
+            <input id="clientLastName" placeholder="שם משפחה" />
           </div>
           <div>
             <label>טלפון</label>
@@ -526,10 +568,14 @@
             <h2>לקוחות</h2>
             <span>ללא כפילויות לפי מספר פלאפון</span>
           </div>
+          <div class="customers-search-wrap">
+            <label for="customerSearchInput" class="customers-search-label">חיפוש לקוח</label>
+            <input id="customerSearchInput" class="customers-search-input" placeholder="התחל לרשום שם או פלאפון..." autocomplete="off" />
+          </div>
           <div class="table-wrap">
             <table class="customers-table">
               <thead>
-                <tr><th>שם</th><th>פלאפון</th><th>שירות אחרון</th><th>סה"כ ביקורים</th></tr>
+                <tr><th>שם</th><th>פלאפון</th><th>סה"כ ביקורים</th></tr>
               </thead>
               <tbody id="ownerCustomersBody"></tbody>
             </table>
@@ -565,6 +611,22 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="customerModal">
+    <div class="modal">
+      <h3>כרטיס לקוח</h3>
+      <div class="details-grid">
+        <div class="detail-box"><div class="detail-label">שם</div><div class="detail-value" id="customerCardName">-</div></div>
+        <div class="detail-box"><div class="detail-label">מספר פלאפון</div><div class="detail-value" id="customerCardPhone">-</div></div>
+        <div class="detail-box"><div class="detail-label">סה&quot;כ ביקורים</div><div class="detail-value" id="customerCardVisits">-</div></div>
+        <div class="detail-box"><div class="detail-label">תור אחרון</div><div class="detail-value" id="customerCardLastVisit">-</div></div>
+      </div>
+      <div class="customer-card-actions">
+        <button class="danger-btn" id="deleteCustomerBtn">מחק לקוח</button>
+      </div>
+      <button class="secondary-btn" id="closeCustomerBtn">סגור</button>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="successModal">
     <div class="success-modal">
       <div class="success-confetti" id="successConfetti"></div>
@@ -592,6 +654,7 @@
     let selectedDate = null;
     let selectedTime = null;
     let activeDetailsItem = null;
+    let activeCustomerPhone = null;
     let detailsInitialState = { notes:'', source:'' };
 
     const appointments = [
@@ -802,17 +865,37 @@
     function renderOwnerCustomers(){
       const body = document.getElementById('ownerCustomersBody');
       const empty = document.getElementById('ownerCustomersEmpty');
+      const searchInput = document.getElementById('customerSearchInput');
       const customers = getUniqueCustomers();
+
+      const rawQuery = (searchInput?.value || '').trim();
+      let nameQuery = rawQuery;
+      let phoneQuery = rawQuery.replace(/\D/g, '');
+
+      const filteredCustomers = customers.filter(customer => {
+        if(!rawQuery) return true;
+        const nameMatch = !!nameQuery && (customer.name || '').toLowerCase().includes(nameQuery.toLowerCase());
+        const phoneMatch = !!phoneQuery && (customer.phone || '').includes(phoneQuery);
+        return nameMatch || phoneMatch;
+      });
+
       body.innerHTML = '';
-      if(!customers.length){
+
+      if(!filteredCustomers.length){
         empty.style.display = 'block';
+        empty.textContent = rawQuery ? 'לא נמצא לקוח מתאים לחיפוש.' : 'עדיין לא נשמרו לקוחות.';
         return;
       }
+
       empty.style.display = 'none';
-      body.innerHTML = customers.map(customer => {
-        const phoneDisplay = customer.phone ? `<a class="phone-link" href="tel:${customer.phone}">${customer.phone}</a>` : '-';
-        return `<tr><td>${customer.name}</td><td>${phoneDisplay}</td><td>${customer.service || '-'}</td><td>${customer.visits}</td></tr>`;
+      body.innerHTML = filteredCustomers.map(customer => {
+        const phoneDisplay = customer.phone ? `<a class="phone-link" href="tel:${customer.phone}" onclick="event.stopPropagation()">${customer.phone}</a>` : '-';
+        return `<tr class="clickable-row customer-row" data-phone="${customer.phone}"><td>${customer.name}</td><td>${phoneDisplay}</td><td>${customer.visits}</td></tr>`;
       }).join('');
+
+      body.querySelectorAll('.customer-row').forEach((row) => {
+        row.addEventListener('click', () => openCustomerModal(row.dataset.phone));
+      });
     }
 
     function renderOwnerAppointments(){
@@ -831,6 +914,50 @@
       body.querySelectorAll('.clickable-row').forEach((row) => {
         row.addEventListener('click', () => openDetailsModal(sorted[Number(row.dataset.index)]));
       });
+    }
+
+    function getCustomerByPhone(phone){
+      const normalizedPhone = normalizePhone(phone);
+      return getUniqueCustomers().find(customer => customer.phone === normalizedPhone) || null;
+    }
+
+    function openCustomerModal(phone){
+      const customer = getCustomerByPhone(phone);
+      if(!customer) return;
+      activeCustomerPhone = customer.phone;
+      document.getElementById('customerCardName').textContent = customer.name || '-';
+      document.getElementById('customerCardPhone').textContent = customer.phone || '-';
+      document.getElementById('customerCardVisits').textContent = customer.visits || 0;
+      document.getElementById('customerCardLastVisit').textContent = customer.lastDate ? `${formatDatePrettyFromKey(customer.lastDate)} בשעה ${customer.lastTime || '-'}` : '-';
+      document.getElementById('customerModal').classList.add('show');
+    }
+
+    function closeCustomerModal(){
+      document.getElementById('customerModal').classList.remove('show');
+      activeCustomerPhone = null;
+    }
+
+    function deleteCustomer(){
+      if(!activeCustomerPhone) return;
+      const normalizedPhone = normalizePhone(activeCustomerPhone);
+      for(let i = appointments.length - 1; i >= 0; i--){
+        if(normalizePhone(appointments[i].phone) === normalizedPhone){
+          const item = appointments[i];
+          const dateBusyList = busyMap[item.date] || [];
+          const slotIndex = dateBusyList.indexOf(item.time);
+          if(slotIndex > -1){
+            dateBusyList.splice(slotIndex, 1);
+          }
+          appointments.splice(i, 1);
+        }
+      }
+      closeCustomerModal();
+      renderDays();
+      renderSlots();
+      renderOwnerAppointments();
+      renderOwnerCustomers();
+      updateBookButtonState();
+      showToast('הלקוח נמחק.');
     }
 
     function updateDetailsButtonState(){
@@ -946,13 +1073,15 @@
     }
 
     function bookAppointment(){
-      const name = document.getElementById('clientName').value.trim();
+      const firstName = document.getElementById('clientFirstName').value.trim();
+      const lastName = document.getElementById('clientLastName').value.trim();
+      const name = `${firstName} ${lastName}`.trim();
       const phoneRaw = document.getElementById('clientPhone').value.trim();
       const service = document.getElementById('clientService').value;
       const phone = phoneRaw.replace(/\D/g, '');
       if(!selectedDate) return showToast('יש לבחור יום.');
       if(!selectedTime) return showToast('יש לבחור שעה פנויה.');
-      if(!name || !phoneRaw) return showToast('יש למלא שם וטלפון.');
+      if(!firstName || !lastName || !phoneRaw) return showToast('יש למלא שם פרטי, שם משפחה וטלפון.');
       if(!/^05\d{8}$/.test(phone)) return showToast('יש להזין מספר פלאפון מלא שמתחיל ב-05.');
       if(!service) return showToast('יש לבחור שירות.');
 
@@ -963,7 +1092,8 @@
       appointments.push({name, phone, service, date:dateKey, time:selectedTime, status:'נקבע', source:'לקוח', notes:''});
 
       openSuccessModal(formatDatePretty(selectedDate), selectedTime, service);
-      document.getElementById('clientName').value = '';
+      document.getElementById('clientFirstName').value = '';
+      document.getElementById('clientLastName').value = '';
       document.getElementById('clientPhone').value = '';
       document.getElementById('clientService').value = '';
       selectedTime = null;
@@ -980,6 +1110,8 @@
     document.getElementById('closeDetailsBtn').addEventListener('click', saveAndCloseDetailsModal);
     document.getElementById('detailNotesInput').addEventListener('input', updateDetailsButtonState);
     document.getElementById('detailSourceInput').addEventListener('input', updateDetailsButtonState);
+    document.getElementById('closeCustomerBtn').addEventListener('click', closeCustomerModal);
+    document.getElementById('deleteCustomerBtn').addEventListener('click', deleteCustomer);
     document.getElementById('closeSuccessBtn').addEventListener('click', closeSuccessModal);
     document.getElementById('backToClientBtn').addEventListener('click', () => {
       document.getElementById('ownerScreen').classList.remove('active');
@@ -987,6 +1119,7 @@
     });
     document.getElementById('clientPhone').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
     document.getElementById('clientService').addEventListener('change', updateBookButtonState);
+    document.getElementById('customerSearchInput')?.addEventListener('input', renderOwnerCustomers);
     document.getElementById('ownerCodeInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitOwnerCode(); });
     document.getElementById('ownerCodeInput').addEventListener('input', (e) => {
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
@@ -996,6 +1129,7 @@
     });
     document.getElementById('codeModal').addEventListener('click', (e) => { if(e.target.id === 'codeModal') closeOwnerModal(); });
     document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') saveAndCloseDetailsModal(); });
+    document.getElementById('customerModal').addEventListener('click', (e) => { if(e.target.id === 'customerModal') closeCustomerModal(); });
     document.getElementById('successModal').addEventListener('click', (e) => { if(e.target.id === 'successModal') closeSuccessModal(); });
     document.querySelectorAll('.owner-tab').forEach(tab => tab.addEventListener('click', () => {
       document.querySelectorAll('.owner-tab').forEach(t => t.classList.remove('active'));
