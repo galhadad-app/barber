@@ -165,16 +165,8 @@
     .day-chip.selected .day-name,.day-chip.selected .day-date{color:#17120a}
     .day-chip.closed,.day-chip.past{opacity:.45;background:#141821;cursor:not-allowed}
 
-    .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-    .legend-item{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
-    .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
-    .dot.free{background:var(--ok)}
-    .dot.busy{background:var(--danger)}
-    .dot.sel{background:var(--gold)}
-    .dot.closed{background:#7d8698}
-
     .selected-summary{
-      display:none;justify-content:space-between;gap:10px;align-items:center;
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
       padding:12px 14px;border-radius:18px;background:rgba(215,180,109,.08);
       border:1px solid rgba(215,180,109,.16);margin-top:12px;color:#f3e0b9;font-size:14px;
     }
@@ -233,12 +225,31 @@
       padding:12px 16px;
     }
 
-    .primary-btn,.secondary-btn{
+    .primary-btn,.secondary-btn,.secondary-action-btn,.danger-btn{
       width:100%;border:none;border-radius:20px;padding:16px 18px;font-weight:900;
-      font-size:15px;cursor:pointer;margin-top:14px;
+      font-size:15px;cursor:pointer;margin-top:14px;transition:.2s ease;
     }
     .primary-btn{background:linear-gradient(135deg,#e4c27c,#c99540);color:#19150d;box-shadow:0 12px 28px rgba(201,149,64,.24)}
     .secondary-btn{background:#1a1f2b;color:var(--text);border:1px solid var(--line)}
+    .secondary-action-btn{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+      margin-top:10px;
+    }
+    .secondary-action-btn:hover{
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border-color:rgba(255,255,255,.28);
+      transform:translateY(-1px);
+    }
+    .danger-btn{
+      background:linear-gradient(135deg,#ff8a8a,#e05555);
+      color:#fff;
+      box-shadow:0 12px 28px rgba(224,85,85,.18);
+    }
+
     .note{color:var(--muted);font-size:13px;line-height:1.7;margin-top:10px;text-align:center}
 
     .toast{
@@ -260,6 +271,9 @@
     }
     .modal h3{margin:0 0 10px 0;font-size:19px;text-align:center;font-weight:800}
     .modal p{margin:0 0 10px 0;color:rgba(255,255,255,.5);line-height:1.65;font-size:13px;text-align:center}
+    .modal-actions{display:flex;gap:10px}
+    .modal-actions > button{margin-top:12px}
+    .modal-subtitle{margin-top:0;margin-bottom:14px;color:var(--muted);text-align:center;font-size:13px;line-height:1.7}
 
     .success-modal{
       width:min(92vw,560px);background:linear-gradient(180deg,#f7f4ee 0%, #f0ebe2 100%);color:#2b2116;
@@ -331,7 +345,7 @@
     .customers-table th:nth-child(2), .customers-table td:nth-child(2){width:30%}
     .customers-table th:nth-child(3), .customers-table td:nth-child(3){width:30%}
 
-        .customers-search-wrap{
+    .customers-search-wrap{
       margin:4px 0 12px;
     }
     .customers-search-label{
@@ -352,7 +366,7 @@
       font-size:14px;
     }
 
-.details-grid{display:grid;gap:0;margin-top:10px}
+    .details-grid{display:grid;gap:0;margin-top:10px}
     .detail-box{
       background:transparent;
       border:none;
@@ -369,23 +383,12 @@
     .detail-edit::placeholder{color:rgba(255,255,255,.28)}
     textarea.detail-edit{resize:vertical;min-height:34px;max-height:120px}
 
-    .customer-card-actions{
+    .customer-card-actions, .booking-actions{
       display:flex;
       gap:10px;
       margin-top:14px;
     }
-    .danger-btn{
-      width:100%;
-      border:none;
-      border-radius:18px;
-      padding:14px 16px;
-      background:linear-gradient(135deg,#ff8a8a,#e05555);
-      color:#fff;
-      font-weight:900;
-      font-size:14px;
-      cursor:pointer;
-      box-shadow:0 12px 28px rgba(224,85,85,.18);
-    }
+    .booking-actions{flex-direction:column}
 
     #loader{
       position:fixed;inset:0;background:
@@ -398,6 +401,20 @@
     #loader img{position:relative;z-index:2;width:260px;max-width:82vw;animation:logoIntro 1.15s ease, logoFloat 2.2s ease-in-out infinite 1.15s;filter:drop-shadow(0 10px 28px rgba(0,0,0,.30))}
     @keyframes logoIntro{0%{opacity:0;transform:scale(.82)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
     @keyframes logoFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+    .my-appt-result{
+      margin-top:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.08);
+      background:#141925;
+      padding:14px;
+    }
+    .my-appt-result.hidden{display:none}
+    .my-appt-line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .my-appt-line:last-child{border-bottom:none}
+    .my-appt-label{font-size:12px;color:var(--muted)}
+    .my-appt-value{font-size:14px;color:var(--text);font-weight:800}
+    .helper-text{font-size:12px;color:var(--muted);text-align:center;line-height:1.7;margin-top:8px}
 
     @media (max-width:640px){
       .slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
@@ -414,6 +431,7 @@
       .success-modal .success-subtitle{font-size:16px}
       .success-datetime{font-size:23px}
       .success-note{font-size:15px}
+      .modal-actions, .customer-card-actions{flex-direction:column}
     }
     @media (max-width:420px){
       .slots-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
@@ -423,46 +441,46 @@
       .success-icon{width:66px;height:66px;font-size:30px}
       .success-btn{width:100%}
     }
-  .animated-panel{
-  position:relative;
-  overflow:hidden;
-  background:
-    linear-gradient(180deg, #171c26 0%, #10151d 100%);
-  border:1px solid rgba(255,255,255,.06);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.04),
-    inset 0 -1px 0 rgba(0,0,0,.32),
-    0 18px 36px rgba(0,0,0,.28);
-}
+    .animated-panel{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, #171c26 0%, #10151d 100%);
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        inset 0 -1px 0 rgba(0,0,0,.32),
+        0 18px 36px rgba(0,0,0,.28);
+    }
 
-.animated-panel::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:
-    radial-gradient(ellipse at top, rgba(215,180,109,.10), transparent 42%),
-    linear-gradient(180deg, rgba(255,255,255,.02), transparent 24%);
-  pointer-events:none;
-  z-index:0;
-}
+    .animated-panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(ellipse at top, rgba(215,180,109,.10), transparent 42%),
+        linear-gradient(180deg, rgba(255,255,255,.02), transparent 24%);
+      pointer-events:none;
+      z-index:0;
+    }
 
-.animated-panel::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:
-    radial-gradient(circle at 50% 120%, rgba(0,0,0,.22), transparent 48%);
-  pointer-events:none;
-  z-index:0;
-}
+    .animated-panel::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at 50% 120%, rgba(0,0,0,.22), transparent 48%);
+      pointer-events:none;
+      z-index:0;
+    }
 
-.animated-panel > *{
-  position:relative;
-  z-index:1;
-}
-</style>
+    .animated-panel > *{
+      position:relative;
+      z-index:1;
+    }
+  </style>
 </head>
 <body>
   <div id="loader"><img src="logo.png" alt="לוגו"></div>
@@ -474,7 +492,6 @@
       <section class="card animated-panel">
         <div class="booking-head">
           <h2 class="booking-title" id="bookingTitle" title="כניסת בעל המספרה">קביעת תור!</h2>
-          
         </div>
 
         <div class="section-title" style="margin-bottom:8px">
@@ -483,7 +500,6 @@
         <div class="days-strip" id="daysStrip"></div>
 
         <div class="selected-summary">
-         
           <strong id="selectedDayText">עדיין לא נבחר יום</strong>
         </div>
       </section>
@@ -530,7 +546,10 @@
           </div>
         </div>
 
-        <button class="primary-btn" id="bookBtn" disabled>קבע תור</button>
+        <div class="booking-actions">
+          <button class="primary-btn" id="bookBtn" disabled>קבע תור</button>
+          <button class="secondary-action-btn" id="openMyAppointmentBtn">יש לי כבר תור</button>
+        </div>
         <div class="note">הימים הסגורים והסלוטים התפוסים אינם זמינים לבחירה.</div>
       </section>
     </section>
@@ -607,7 +626,10 @@
         <div class="detail-box"><div class="detail-label">הערות</div><textarea class="detail-edit" id="detailNotesInput" rows="2" placeholder="אין הערות"></textarea></div>
         <div class="detail-box"><div class="detail-label">מקור הזמנה</div><input class="detail-edit" id="detailSourceInput" type="text" placeholder="-" /></div>
       </div>
-      <button class="secondary-btn" id="closeDetailsBtn">סגור</button>
+      <div class="modal-actions">
+        <button class="danger-btn" id="cancelAppointmentBtn">בטל תור</button>
+        <button class="secondary-btn" id="closeDetailsBtn">סגור</button>
+      </div>
     </div>
   </div>
 
@@ -624,6 +646,31 @@
         <button class="danger-btn" id="deleteCustomerBtn">מחק לקוח</button>
       </div>
       <button class="secondary-btn" id="closeCustomerBtn">סגור</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="myAppointmentModal">
+    <div class="modal">
+      <h3>יש לי כבר תור</h3>
+      <p class="modal-subtitle">הזן את מספר הפלאפון שלך כדי לראות את התור העתידי הקרוב ולבטל אותו במידת הצורך.</p>
+      <div class="fields" style="margin-top:0">
+        <div>
+          <label>פלאפון</label>
+          <input id="myAppointmentPhoneInput" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="primary-btn" id="findMyAppointmentBtn">מצא תור</button>
+        <button class="secondary-btn" id="closeMyAppointmentBtn">סגור</button>
+      </div>
+      <div id="myAppointmentResult" class="my-appt-result hidden">
+        <div class="my-appt-line"><span class="my-appt-label">שם</span><span class="my-appt-value" id="myApptName">-</span></div>
+        <div class="my-appt-line"><span class="my-appt-label">תאריך</span><span class="my-appt-value" id="myApptDate">-</span></div>
+        <div class="my-appt-line"><span class="my-appt-label">שעה</span><span class="my-appt-value" id="myApptTime">-</span></div>
+        <div class="my-appt-line"><span class="my-appt-label">שירות</span><span class="my-appt-value" id="myApptService">-</span></div>
+        <button class="danger-btn" id="clientCancelAppointmentBtn">בטל תור</button>
+      </div>
+      <div class="helper-text" id="myAppointmentHelperText">אפשר לבטל רק תור עתידי.</div>
     </div>
   </div>
 
@@ -655,6 +702,7 @@
     let selectedTime = null;
     let activeDetailsItem = null;
     let activeCustomerPhone = null;
+    let activeClientAppointment = null;
     let detailsInitialState = { notes:'', source:'' };
 
     const appointments = [
@@ -731,12 +779,15 @@
       return slotDate < new Date();
     }
 
-    function isFutureOrTodayAppointment(item){
-      if(!item?.date || !item?.time) return false;
+    function appointmentDateTime(item){
+      if(!item?.date || !item?.time) return new Date(0);
       const [year, month, day] = item.date.split('-').map(Number);
       const [hour, minute] = item.time.split(':').map(Number);
-      const appointmentDate = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0);
-      return appointmentDate >= new Date();
+      return new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0, 0);
+    }
+
+    function isFutureOrTodayAppointment(item){
+      return appointmentDateTime(item) >= new Date();
     }
 
     function getDateStatus(date){
@@ -833,7 +884,6 @@
       }
     }
 
-
     function normalizePhone(phone){
       return String(phone || '').replace(/\D/g, '');
     }
@@ -914,7 +964,7 @@
       const upcomingAppointments = appointments.filter(isFutureOrTodayAppointment);
       if(!upcomingAppointments.length){ empty.style.display = 'block'; return; }
       empty.style.display = 'none';
-      const sorted = [...upcomingAppointments].sort((a,b) => a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date));
+      const sorted = [...upcomingAppointments].sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b));
       body.innerHTML = sorted.map((a, index) => {
         const dateDisplay = a.date === todayKey ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(a.date);
         const phoneDisplay = a.phone ? `<a class="phone-link" href="tel:${a.phone}" onclick="event.stopPropagation()">${a.phone}</a>` : '-';
@@ -951,21 +1001,12 @@
       const normalizedPhone = normalizePhone(activeCustomerPhone);
       for(let i = appointments.length - 1; i >= 0; i--){
         if(normalizePhone(appointments[i].phone) === normalizedPhone){
-          const item = appointments[i];
-          const dateBusyList = busyMap[item.date] || [];
-          const slotIndex = dateBusyList.indexOf(item.time);
-          if(slotIndex > -1){
-            dateBusyList.splice(slotIndex, 1);
-          }
+          releaseBusySlot(appointments[i].date, appointments[i].time);
           appointments.splice(i, 1);
         }
       }
       closeCustomerModal();
-      renderDays();
-      renderSlots();
-      renderOwnerAppointments();
-      renderOwnerCustomers();
-      updateBookButtonState();
+      rerenderAll();
       showToast('הלקוח נמחק.');
     }
 
@@ -1016,6 +1057,97 @@
       closeDetailsModal();
     }
 
+    function releaseBusySlot(dateKey, time){
+      if(!busyMap[dateKey]) return;
+      const index = busyMap[dateKey].indexOf(time);
+      if(index > -1) busyMap[dateKey].splice(index, 1);
+      if(!busyMap[dateKey].length) delete busyMap[dateKey];
+    }
+
+    function removeAppointment(item){
+      const index = appointments.indexOf(item);
+      if(index === -1) return false;
+      releaseBusySlot(item.date, item.time);
+      appointments.splice(index, 1);
+      return true;
+    }
+
+    function rerenderAll(){
+      renderDays();
+      renderSlots();
+      renderOwnerAppointments();
+      renderOwnerCustomers();
+      updateBookButtonState();
+    }
+
+    function cancelAppointmentByOwner(){
+      if(!activeDetailsItem) return;
+      const removed = removeAppointment(activeDetailsItem);
+      closeDetailsModal();
+      if(removed){
+        rerenderAll();
+        showToast('התור בוטל והשעה חזרה להיות זמינה.');
+      }
+    }
+
+    function openMyAppointmentModal(){
+      document.getElementById('myAppointmentModal').classList.add('show');
+      document.getElementById('myAppointmentPhoneInput').value = '';
+      document.getElementById('myAppointmentResult').classList.add('hidden');
+      document.getElementById('myAppointmentHelperText').textContent = 'אפשר לבטל רק תור עתידי.';
+      activeClientAppointment = null;
+      setTimeout(() => document.getElementById('myAppointmentPhoneInput').focus(), 50);
+    }
+
+    function closeMyAppointmentModal(){
+      document.getElementById('myAppointmentModal').classList.remove('show');
+      activeClientAppointment = null;
+    }
+
+    function findClientAppointment(){
+      const phone = normalizePhone(document.getElementById('myAppointmentPhoneInput').value);
+      const resultBox = document.getElementById('myAppointmentResult');
+      const helper = document.getElementById('myAppointmentHelperText');
+
+      if(!/^05\d{8}$/.test(phone)){
+        helper.textContent = 'יש להזין מספר פלאפון מלא שמתחיל ב-05.';
+        resultBox.classList.add('hidden');
+        activeClientAppointment = null;
+        return;
+      }
+
+      const found = appointments
+        .filter(item => normalizePhone(item.phone) === phone && isFutureOrTodayAppointment(item))
+        .sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b))[0];
+
+      if(!found){
+        helper.textContent = 'לא נמצא תור עתידי למספר הזה.';
+        resultBox.classList.add('hidden');
+        activeClientAppointment = null;
+        return;
+      }
+
+      activeClientAppointment = found;
+      document.getElementById('myApptName').textContent = found.name || '-';
+      document.getElementById('myApptDate').textContent = found.date === formatDateKey(today) ? 'היום' : formatDatePrettyFromKey(found.date);
+      document.getElementById('myApptTime').textContent = found.time || '-';
+      document.getElementById('myApptService').textContent = found.service || '-';
+      resultBox.classList.remove('hidden');
+      helper.textContent = 'זהו התור העתידי הקרוב שלך.';
+    }
+
+    function cancelClientAppointment(){
+      if(!activeClientAppointment) return;
+      const removed = removeAppointment(activeClientAppointment);
+      if(removed){
+        document.getElementById('myAppointmentResult').classList.add('hidden');
+        document.getElementById('myAppointmentHelperText').textContent = 'התור בוטל בהצלחה והשעה חזרה להיות זמינה.';
+        activeClientAppointment = null;
+        rerenderAll();
+        showToast('התור בוטל והשעה חזרה להיות זמינה.');
+      }
+    }
+
     function launchSuccessConfetti(){
       const wrap = document.getElementById('successConfetti');
       wrap.innerHTML = '';
@@ -1042,6 +1174,7 @@
     function openSuccessModal(dateText, timeText, serviceText){
       document.getElementById('successDateTime').textContent = `${dateText} בשעה ${timeText}`;
       document.getElementById('successService').textContent = serviceText;
+      launchSuccessConfetti();
       const modal = document.getElementById('successModal');
       modal.classList.remove('show');
       void modal.offsetWidth;
@@ -1107,16 +1240,17 @@
       document.getElementById('clientService').value = '';
       selectedTime = null;
       document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
-      renderDays();
-      renderSlots();
-      renderOwnerAppointments();
-      renderOwnerCustomers();
-      updateBookButtonState();
+      rerenderAll();
     }
 
     document.getElementById('bookBtn').addEventListener('click', bookAppointment);
+    document.getElementById('openMyAppointmentBtn').addEventListener('click', openMyAppointmentModal);
+    document.getElementById('findMyAppointmentBtn').addEventListener('click', findClientAppointment);
+    document.getElementById('clientCancelAppointmentBtn').addEventListener('click', cancelClientAppointment);
+    document.getElementById('closeMyAppointmentBtn').addEventListener('click', closeMyAppointmentModal);
     document.getElementById('closeCodeBtn').addEventListener('click', closeOwnerModal);
     document.getElementById('closeDetailsBtn').addEventListener('click', saveAndCloseDetailsModal);
+    document.getElementById('cancelAppointmentBtn').addEventListener('click', cancelAppointmentByOwner);
     document.getElementById('detailNotesInput').addEventListener('input', updateDetailsButtonState);
     document.getElementById('detailSourceInput').addEventListener('input', updateDetailsButtonState);
     document.getElementById('closeCustomerBtn').addEventListener('click', closeCustomerModal);
@@ -1127,6 +1261,8 @@
       document.getElementById('clientScreen').classList.add('active');
     });
     document.getElementById('clientPhone').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
+    document.getElementById('myAppointmentPhoneInput').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
+    document.getElementById('myAppointmentPhoneInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') findClientAppointment(); });
     document.getElementById('clientService').addEventListener('change', updateBookButtonState);
     document.getElementById('customerSearchInput')?.addEventListener('input', renderOwnerCustomers);
     document.getElementById('ownerCodeInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitOwnerCode(); });
@@ -1139,6 +1275,7 @@
     document.getElementById('codeModal').addEventListener('click', (e) => { if(e.target.id === 'codeModal') closeOwnerModal(); });
     document.getElementById('detailsModal').addEventListener('click', (e) => { if(e.target.id === 'detailsModal') saveAndCloseDetailsModal(); });
     document.getElementById('customerModal').addEventListener('click', (e) => { if(e.target.id === 'customerModal') closeCustomerModal(); });
+    document.getElementById('myAppointmentModal').addEventListener('click', (e) => { if(e.target.id === 'myAppointmentModal') closeMyAppointmentModal(); });
     document.getElementById('successModal').addEventListener('click', (e) => { if(e.target.id === 'successModal') closeSuccessModal(); });
     document.querySelectorAll('.owner-tab').forEach(tab => tab.addEventListener('click', () => {
       document.querySelectorAll('.owner-tab').forEach(t => t.classList.remove('active'));
@@ -1181,11 +1318,8 @@
     selectedDate = firstOpenDate;
     document.getElementById('selectedDayText').textContent = `${getDayLabel(firstOpenDate)} • ${formatDatePretty(firstOpenDate)}`;
 
-    renderDays();
-    renderSlots();
-    renderOwnerAppointments();
-    renderOwnerCustomers();
-    updateBookButtonState();
+    rerenderAll();
+    document.getElementById('selectedDayText').textContent = `${getDayLabel(firstOpenDate)} • ${formatDatePretty(firstOpenDate)}`;
   </script>
 </body>
 </html>
