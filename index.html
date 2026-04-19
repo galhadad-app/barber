@@ -493,16 +493,157 @@
       position:relative;
       z-index:1;
     }
+  
+    .logo-wrap{
+      padding-bottom:92px;
+    }
+
+    .music-toggle-wrap{
+      position:absolute;
+      left:50%;
+      bottom:16px;
+      transform:translateX(-50%);
+      z-index:2;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      pointer-events:auto;
+    }
+
+    .music-toggle{
+      position:relative;
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      border:1px solid rgba(215,180,109,.38);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,.02) 38%, rgba(0,0,0,.18) 100%),
+        linear-gradient(180deg, rgba(34,27,17,.92), rgba(14,12,10,.96));
+      color:#e8c780;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:
+        0 10px 26px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 0 0 2px rgba(215,180,109,.10);
+      transition:
+        transform .28s ease,
+        box-shadow .28s ease,
+        border-color .28s ease,
+        color .28s ease,
+        opacity .28s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .music-toggle::before{
+      content:"";
+      position:absolute;
+      inset:4px;
+      border-radius:50%;
+      border:1px solid rgba(215,180,109,.16);
+      pointer-events:none;
+    }
+
+    .music-toggle:hover{
+      transform:scale(1.04);
+    }
+
+    .music-toggle-icon{
+      font-size:28px;
+      line-height:1;
+      transform:translateY(-1px);
+      filter:drop-shadow(0 2px 6px rgba(0,0,0,.25));
+      pointer-events:none;
+    }
+
+    .music-toggle.playing{
+      color:#ffd98b;
+      border-color:rgba(215,180,109,.72);
+      box-shadow:
+        0 0 0 2px rgba(215,180,109,.10),
+        0 0 22px rgba(215,180,109,.30),
+        0 12px 30px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.18),
+        inset 0 0 0 2px rgba(215,180,109,.14);
+      animation:musicPulse 1.8s ease-in-out infinite;
+    }
+
+    .music-toggle.playing .music-toggle-icon{
+      animation:musicWiggle 1.5s ease-in-out infinite;
+    }
+
+    .music-notes{
+      position:absolute;
+      inset:-12px;
+      pointer-events:none;
+    }
+
+    .music-note{
+      position:absolute;
+      color:rgba(232,199,128,.95);
+      font-size:15px;
+      opacity:0;
+      text-shadow:0 0 12px rgba(215,180,109,.24);
+    }
+
+    .music-toggle.playing .music-note{
+      animation:floatNote 1.8s ease-out infinite;
+    }
+
+    .music-note.n1{ right:-4px; top:6px; animation-delay:0s; }
+    .music-note.n2{ left:-4px; top:10px; animation-delay:.45s; }
+    .music-note.n3{ right:8px; bottom:-2px; animation-delay:.9s; }
+
+    @keyframes musicPulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.06); }
+    }
+
+    @keyframes musicWiggle{
+      0%,100%{ transform:translateY(-1px) rotate(0deg) scale(1); }
+      25%{ transform:translateY(-1px) rotate(6deg) scale(1.05); }
+      50%{ transform:translateY(-1px) rotate(0deg) scale(1.08); }
+      75%{ transform:translateY(-1px) rotate(-6deg) scale(1.05); }
+    }
+
+    @keyframes floatNote{
+      0%{ opacity:0; transform:translateY(10px) scale(.75); }
+      20%{ opacity:1; }
+      100%{ opacity:0; transform:translateY(-18px) scale(1.08); }
+    }
+
+    @media (max-width:480px){
+      .logo-wrap{padding-bottom:82px;}
+      .music-toggle{
+        width:58px;
+        height:58px;
+      }
+      .music-toggle-icon{font-size:25px;}
+    }
+
   </style>
 </head>
 <body>
   <div id="loader"><img src="logo.png" alt="לוגו"></div>
-  <audio id="selectSound" src="select.mp3" preload="auto"></audio>
-  <audio id="bookSound" src="book.mp3" preload="auto"></audio>
 
   <div class="app">
     <section id="clientScreen" class="screen active">
-      <section class="logo-wrap"><img src="logo.png" alt="לוגו המספרה"></section>
+      <section class="logo-wrap">
+        <img src="logo.png" alt="לוגו המספרה">
+        <div class="music-toggle-wrap">
+          <button id="musicToggle" class="music-toggle" type="button" aria-label="הפעלת מוזיקת רקע" title="מוזיקת רקע">
+            <span class="music-toggle-icon">🎶</span>
+            <span class="music-notes" aria-hidden="true">
+              <span class="music-note n1">♪</span>
+              <span class="music-note n2">♫</span>
+              <span class="music-note n3">♪</span>
+            </span>
+          </button>
+        </div>
+      </section>
+      <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
 
       <section class="card animated-panel">
         <div class="booking-head">
@@ -755,22 +896,6 @@
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-
-    function playUiSound(audioId){
-      const audio = document.getElementById(audioId);
-      if(!audio) return;
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    }
-
-    function playSelectSound(){
-      playUiSound('selectSound');
-    }
-
-    function playBookSound(){
-      playUiSound('bookSound');
-    }
-
     function formatDateKey(date){
       const y = date.getFullYear();
       const m = String(date.getMonth()+1).padStart(2,'0');
@@ -869,7 +994,6 @@
 
         if(status !== 'closed' && status !== 'busy'){
           chip.addEventListener('click', () => {
-            playSelectSound();
             selectedDate = new Date(date);
             selectedTime = null;
             document.getElementById('selectedDayText').textContent = `${getDayLabel(date)} • ${formatDatePretty(date)}`;
@@ -924,7 +1048,6 @@
         btn.className = 'time-chip free';
 
         btn.addEventListener('click', () => {
-          playSelectSound();
           selectedTime = time;
           document.getElementById('selectedTimeText').textContent = time;
           renderSlots();
@@ -1299,7 +1422,6 @@
     }
 
     function bookAppointment(){
-      playBookSound();
       const firstName = document.getElementById('clientFirstName').value.trim();
       const lastName = document.getElementById('clientLastName').value.trim();
       const name = `${firstName} ${lastName}`.trim();
@@ -1443,6 +1565,46 @@
       input.value = input.value.replace(/[^\u0590-\u05FF\s]/g, '');
     }
 
-</script>
+
+    const musicToggle = document.getElementById('musicToggle');
+    const bgMusic = document.getElementById('bgMusic');
+    let musicPlaying = false;
+
+    function setMusicState(isPlaying){
+      musicPlaying = !!isPlaying;
+      musicToggle.classList.toggle('playing', musicPlaying);
+      musicToggle.setAttribute('aria-label', musicPlaying ? 'עצירת מוזיקת רקע' : 'הפעלת מוזיקת רקע');
+      musicToggle.setAttribute('title', musicPlaying ? 'עצור מוזיקה' : 'הפעל מוזיקה');
+    }
+
+    async function toggleBackgroundMusic(){
+      if(!bgMusic || !musicToggle) return;
+      if(musicPlaying){
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        setMusicState(false);
+        return;
+      }
+      try{
+        await bgMusic.play();
+        setMusicState(true);
+      }catch(err){
+        showToast('לא ניתן להפעיל את המוזיקה כרגע.', true);
+      }
+    }
+
+    if(musicToggle){
+      musicToggle.addEventListener('click', toggleBackgroundMusic);
+    }
+
+    if(bgMusic){
+      bgMusic.addEventListener('pause', () => {
+        if(!bgMusic.ended) setMusicState(false);
+      });
+      bgMusic.addEventListener('ended', () => setMusicState(false));
+      bgMusic.addEventListener('play', () => setMusicState(true));
+    }
+
+  </script>
 </body>
 </html>
