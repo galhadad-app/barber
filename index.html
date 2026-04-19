@@ -745,7 +745,7 @@
         navigator.vibrate(60);
       }
       const toast = document.getElementById('toast');
-      toast.textContent = isError ? "⚠️ " + text : text;
+      toast.textContent = text;
       toast.classList.remove('error');
       if(isError) toast.classList.add('error');
       toast.classList.add('show');
