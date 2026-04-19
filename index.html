@@ -497,6 +497,8 @@
 </head>
 <body>
   <div id="loader"><img src="logo.png" alt="לוגו"></div>
+  <audio id="selectSound" src="select.mp3" preload="auto"></audio>
+  <audio id="bookSound" src="book.mp3" preload="auto"></audio>
 
   <div class="app">
     <section id="clientScreen" class="screen active">
@@ -753,6 +755,22 @@
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
+
+    function playUiSound(audioId){
+      const audio = document.getElementById(audioId);
+      if(!audio) return;
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function playSelectSound(){
+      playUiSound('selectSound');
+    }
+
+    function playBookSound(){
+      playUiSound('bookSound');
+    }
+
     function formatDateKey(date){
       const y = date.getFullYear();
       const m = String(date.getMonth()+1).padStart(2,'0');
@@ -851,6 +869,7 @@
 
         if(status !== 'closed' && status !== 'busy'){
           chip.addEventListener('click', () => {
+            playSelectSound();
             selectedDate = new Date(date);
             selectedTime = null;
             document.getElementById('selectedDayText').textContent = `${getDayLabel(date)} • ${formatDatePretty(date)}`;
@@ -905,6 +924,7 @@
         btn.className = 'time-chip free';
 
         btn.addEventListener('click', () => {
+          playSelectSound();
           selectedTime = time;
           document.getElementById('selectedTimeText').textContent = time;
           renderSlots();
@@ -1279,6 +1299,7 @@
     }
 
     function bookAppointment(){
+      playBookSound();
       const firstName = document.getElementById('clientFirstName').value.trim();
       const lastName = document.getElementById('clientLastName').value.trim();
       const name = `${firstName} ${lastName}`.trim();
