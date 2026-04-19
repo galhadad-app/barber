@@ -741,8 +741,11 @@
     };
 
     function showToast(text, isError=false){
+      if(isError && navigator.vibrate){
+        navigator.vibrate(60);
+      }
       const toast = document.getElementById('toast');
-      toast.textContent = text;
+      toast.textContent = isError ? "⚠️ " + text : text;
       toast.classList.remove('error');
       if(isError) toast.classList.add('error');
       toast.classList.add('show');
