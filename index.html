@@ -253,11 +253,17 @@
     .note{color:var(--muted);font-size:13px;line-height:1.7;margin-top:10px;text-align:center}
 
     .toast{
+
       position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:24px;width:min(92vw,420px);
       background:#12161f;border:1px solid var(--line);color:var(--text);padding:14px 16px;border-radius:18px;
       box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:30;text-align:center;
     }
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.error{
+  border:1px solid rgba(255,80,80,.4);
+  background:rgba(120,20,20,.9);
+  color:#fff;
+}
 
     .modal-backdrop{
       position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);display:none;
@@ -734,9 +740,11 @@
       "2026-04-22": ["10:30","11:00","17:30"]
     };
 
-    function showToast(text){
+    function showToast(text, isError=false){
       const toast = document.getElementById('toast');
       toast.textContent = text;
+      toast.classList.remove('error');
+      if(isError) toast.classList.add('error');
       toast.classList.add('show');
       clearTimeout(window.toastTimer);
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
@@ -1228,6 +1236,26 @@
       }
     }
 
+
+    function findFutureAppointmentByPhone(phone){
+      const normalizedPhone = normalizePhone(phone);
+      return appointments
+        .filter(item => normalizePhone(item.phone) === normalizedPhone && isFutureOrTodayAppointment(item))
+        .sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b))[0] || null;
+    }
+
+    function upsertCustomerAppointment(newItem){
+      const normalizedPhone = normalizePhone(newItem.phone);
+      const existingIndex = appointments.findIndex(item =>
+        normalizePhone(item.phone) === normalizedPhone && !isFutureOrTodayAppointment(item)
+      );
+      if(existingIndex > -1){
+        appointments[existingIndex] = { ...appointments[existingIndex], ...newItem };
+      } else {
+        appointments.push(newItem);
+      }
+    }
+
     function updateBookButtonState(){
       const service = document.getElementById('clientService').value;
       const bookBtn = document.getElementById('bookBtn');
@@ -1250,11 +1278,26 @@
       if(!/^05\d{8}$/.test(phone)) return showToast('יש להזין מספר פלאפון מלא שמתחיל ב-05.');
       if(!service) return showToast('יש לבחור שירות.');
 
+      const existingFutureAppointment = findFutureAppointmentByPhone(phone);
+      if(existingFutureAppointment){
+        return showToast('למספר הזה כבר קיים תור עתידי.', true);
+      }
+
       const dateKey = formatDateKey(selectedDate);
       busyMap[dateKey] = busyMap[dateKey] || [];
       if(busyMap[dateKey].includes(selectedTime)) return showToast('השעה הזו כבר נתפסה.');
       busyMap[dateKey].push(selectedTime);
-      appointments.push({name, phone, service, date:dateKey, time:selectedTime, status:'נקבע', source:'לקוח', notes:''});
+
+      upsertCustomerAppointment({
+        name,
+        phone,
+        service,
+        date:dateKey,
+        time:selectedTime,
+        status:'נקבע',
+        source:'לקוח',
+        notes:''
+      });
 
       openSuccessModal(formatDatePretty(selectedDate), selectedTime, service);
       document.getElementById('clientFirstName').value = '';
