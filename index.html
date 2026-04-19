@@ -563,7 +563,7 @@
           <button class="primary-btn" id="bookBtn" disabled>קבע תור</button>
           <button class="secondary-action-btn" id="openMyAppointmentBtn">יש לי כבר תור</button>
         </div>
-        <div class="note">הימים הסגורים והסלוטים התפוסים אינם זמינים לבחירה.</div>
+        <div class="note">מוצגות כאן רק שעות פנויות. שעה שנתפסה תופיע שוב רק אחרי ביטול התור.</div>
       </section>
     </section>
 
@@ -880,28 +880,36 @@
       }
       const dateKey = formatDateKey(selectedDate);
       const busySlots = busyMap[dateKey] || [];
-      let freeCount = 0;
-
-      slots.forEach(time => {
+      const availableSlots = slots.filter(time => {
         const busy = busySlots.includes(time);
         const past = isPastSlot(selectedDate, time);
+        return !busy && !past;
+      });
+
+      if(!availableSlots.length){
+        selectedTime = null;
+        document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
+        updateBookButtonState();
+        wrap.innerHTML = '<div class="empty-slots" style="grid-column:1/-1">אין שעות פנויות ביום שנבחר.</div>';
+        return;
+      }
+
+      if(selectedTime && !availableSlots.includes(selectedTime)){
+        selectedTime = null;
+        document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
+      }
+
+      availableSlots.forEach(time => {
         const btn = document.createElement('button');
         btn.textContent = time;
-        btn.className = 'time-chip';
+        btn.className = 'time-chip free';
 
-        if(busy || past){
-          btn.classList.add('busy');
-          btn.disabled = true;
-        } else {
-          btn.classList.add('free');
-          freeCount++;
-          btn.addEventListener('click', () => {
-            selectedTime = time;
-            document.getElementById('selectedTimeText').textContent = time;
-            renderSlots();
-            updateBookButtonState();
-          });
-        }
+        btn.addEventListener('click', () => {
+          selectedTime = time;
+          document.getElementById('selectedTimeText').textContent = time;
+          renderSlots();
+          updateBookButtonState();
+        });
 
         if(selectedTime === time){
           btn.classList.remove('free');
@@ -910,10 +918,6 @@
 
         wrap.appendChild(btn);
       });
-
-      if(!freeCount){
-        wrap.innerHTML = '<div class="empty-slots" style="grid-column:1/-1">אין שעות פנויות ביום שנבחר.</div>';
-      }
     }
 
     function normalizePhone(phone){
