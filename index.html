@@ -416,6 +416,13 @@
     .my-appt-value{font-size:14px;color:var(--text);font-weight:800}
     .helper-text{font-size:12px;color:var(--muted);text-align:center;line-height:1.7;margin-top:8px}
 
+    .hidden{display:none !important}
+    .my-appt-actions{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+    }
+
     @media (max-width:640px){
       .slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
       .time-chip{min-height:40px;font-size:13px;border-radius:13px;}
@@ -649,27 +656,35 @@
     </div>
   </div>
 
+  
   <div class="modal-backdrop" id="myAppointmentModal">
     <div class="modal">
-      <h3>יש לי כבר תור</h3>
-      <p class="modal-subtitle">הזן את מספר הפלאפון שלך כדי לראות את התור העתידי הקרוב ולבטל אותו במידת הצורך.</p>
-      <div class="fields" style="margin-top:0">
-        <div>
-          <label>פלאפון</label>
-          <input id="myAppointmentPhoneInput" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
+      <div id="myAppointmentLookupSection">
+        <h3>יש לי כבר תור</h3>
+        <p class="modal-subtitle">הזן את מספר הפלאפון שלך כדי לראות את התור העתידי הקרוב ולבטל אותו במידת הצורך.</p>
+        <div class="fields" style="margin-top:0">
+          <div>
+            <label>פלאפון</label>
+            <input id="myAppointmentPhoneInput" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="primary-btn" id="findMyAppointmentBtn">מצא תור</button>
+          <button class="secondary-btn" id="closeMyAppointmentBtn">סגור</button>
         </div>
       </div>
-      <div class="modal-actions">
-        <button class="primary-btn" id="findMyAppointmentBtn">מצא תור</button>
-        <button class="secondary-btn" id="closeMyAppointmentBtn">סגור</button>
-      </div>
+
       <div id="myAppointmentResult" class="my-appt-result hidden">
         <div class="my-appt-line"><span class="my-appt-label">שם</span><span class="my-appt-value" id="myApptName">-</span></div>
         <div class="my-appt-line"><span class="my-appt-label">תאריך</span><span class="my-appt-value" id="myApptDate">-</span></div>
         <div class="my-appt-line"><span class="my-appt-label">שעה</span><span class="my-appt-value" id="myApptTime">-</span></div>
         <div class="my-appt-line"><span class="my-appt-label">שירות</span><span class="my-appt-value" id="myApptService">-</span></div>
-        <button class="danger-btn" id="clientCancelAppointmentBtn">בטל תור</button>
+        <div class="my-appt-actions">
+          <button class="danger-btn" id="clientCancelAppointmentBtn">בטל תור</button>
+          <button class="secondary-btn" id="closeMyAppointmentResultBtn">סגור</button>
+        </div>
       </div>
+
       <div class="helper-text" id="myAppointmentHelperText">אפשר לבטל רק תור עתידי.</div>
     </div>
   </div>
@@ -1093,6 +1108,7 @@
     function openMyAppointmentModal(){
       document.getElementById('myAppointmentModal').classList.add('show');
       document.getElementById('myAppointmentPhoneInput').value = '';
+      document.getElementById('myAppointmentLookupSection').classList.remove('hidden');
       document.getElementById('myAppointmentResult').classList.add('hidden');
       document.getElementById('myAppointmentHelperText').textContent = 'אפשר לבטל רק תור עתידי.';
       activeClientAppointment = null;
@@ -1102,6 +1118,12 @@
     function closeMyAppointmentModal(){
       document.getElementById('myAppointmentModal').classList.remove('show');
       activeClientAppointment = null;
+
+      // איפוס מלא
+      document.getElementById('myAppointmentLookupSection').classList.remove('hidden');
+      document.getElementById('myAppointmentResult').classList.add('hidden');
+      document.getElementById('myAppointmentPhoneInput').value = '';
+      document.getElementById('myAppointmentHelperText').textContent = 'אפשר לבטל רק תור עתידי.';
     }
 
     function findClientAppointment(){
@@ -1111,6 +1133,7 @@
 
       if(!/^05\d{8}$/.test(phone)){
         helper.textContent = 'יש להזין מספר פלאפון מלא שמתחיל ב-05.';
+        document.getElementById('myAppointmentLookupSection').classList.remove('hidden');
         resultBox.classList.add('hidden');
         activeClientAppointment = null;
         return;
@@ -1122,6 +1145,7 @@
 
       if(!found){
         helper.textContent = 'לא נמצא תור עתידי למספר הזה.';
+        document.getElementById('myAppointmentLookupSection').classList.remove('hidden');
         resultBox.classList.add('hidden');
         activeClientAppointment = null;
         return;
@@ -1132,6 +1156,7 @@
       document.getElementById('myApptDate').textContent = found.date === formatDateKey(today) ? 'היום' : formatDatePrettyFromKey(found.date);
       document.getElementById('myApptTime').textContent = found.time || '-';
       document.getElementById('myApptService').textContent = found.service || '-';
+      document.getElementById('myAppointmentLookupSection').classList.add('hidden');
       resultBox.classList.remove('hidden');
       helper.textContent = 'זהו התור העתידי הקרוב שלך.';
     }
@@ -1140,11 +1165,9 @@
       if(!activeClientAppointment) return;
       const removed = removeAppointment(activeClientAppointment);
       if(removed){
-        document.getElementById('myAppointmentResult').classList.add('hidden');
-        document.getElementById('myAppointmentHelperText').textContent = 'התור בוטל בהצלחה והשעה חזרה להיות זמינה.';
-        activeClientAppointment = null;
         rerenderAll();
         showToast('התור בוטל והשעה חזרה להיות זמינה.');
+        closeMyAppointmentModal(); // סגירה וחזרה לעמוד הראשי
       }
     }
 
@@ -1248,6 +1271,7 @@
     document.getElementById('findMyAppointmentBtn').addEventListener('click', findClientAppointment);
     document.getElementById('clientCancelAppointmentBtn').addEventListener('click', cancelClientAppointment);
     document.getElementById('closeMyAppointmentBtn').addEventListener('click', closeMyAppointmentModal);
+    document.getElementById('closeMyAppointmentResultBtn').addEventListener('click', closeMyAppointmentModal);
     document.getElementById('closeCodeBtn').addEventListener('click', closeOwnerModal);
     document.getElementById('closeDetailsBtn').addEventListener('click', saveAndCloseDetailsModal);
     document.getElementById('cancelAppointmentBtn').addEventListener('click', cancelAppointmentByOwner);
@@ -1264,6 +1288,9 @@
     document.getElementById('myAppointmentPhoneInput').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10); });
     document.getElementById('myAppointmentPhoneInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') findClientAppointment(); });
     document.getElementById('clientService').addEventListener('change', updateBookButtonState);
+
+    document.getElementById('clientFirstName').addEventListener('input', (e)=>allowHebrewOnly(e.target));
+    document.getElementById('clientLastName').addEventListener('input', (e)=>allowHebrewOnly(e.target));
     document.getElementById('customerSearchInput')?.addEventListener('input', renderOwnerCustomers);
     document.getElementById('ownerCodeInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitOwnerCode(); });
     document.getElementById('ownerCodeInput').addEventListener('input', (e) => {
@@ -1320,6 +1347,11 @@
 
     rerenderAll();
     document.getElementById('selectedDayText').textContent = `${getDayLabel(firstOpenDate)} • ${formatDatePretty(firstOpenDate)}`;
-  </script>
+  
+    function allowHebrewOnly(input){
+      input.value = input.value.replace(/[^\u0590-\u05FF\s]/g, '');
+    }
+
+</script>
 </body>
 </html>
