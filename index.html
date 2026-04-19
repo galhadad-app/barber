@@ -551,7 +551,11 @@
     }
 
    .music-toggle-icon{
-  font-size:28px;
+  width:34px;
+  height:34px;
+  object-fit:contain;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));
+  pointer-events:none;
 }
     .music-toggle.playing{
       color:#ffd98b;
@@ -629,7 +633,7 @@
         <img src="logo.png" alt="לוגו המספרה">
         <div class="music-toggle-wrap">
           <button id="musicToggle" class="music-toggle" type="button" aria-label="הפעלת מוזיקת רקע" title="מוזיקת רקע">
-            <span class="music-toggle-icon">🎶</span>
+            <img src="music-icon.png" class="music-toggle-icon" />
             <span class="music-notes" aria-hidden="true">
               <span class="music-note n1">♪</span>
               <span class="music-note n2">♫</span>
