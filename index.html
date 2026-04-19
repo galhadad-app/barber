@@ -785,6 +785,12 @@
       return false;
     }
 
+    function isClosedDateKey(dateKey){
+      const [year, month, day] = String(dateKey || '').split('-').map(Number);
+      if(!year || !month || !day) return false;
+      return isDateClosed(new Date(year, month - 1, day));
+    }
+
     function getSlotsForDate(date){
       if(isDateClosed(date)) return [];
       const day = date.getDay();
@@ -987,7 +993,7 @@
       const empty = document.getElementById('ownerEmpty');
       body.innerHTML = '';
       const todayKey = formatDateKey(today);
-      const upcomingAppointments = appointments.filter(isFutureOrTodayAppointment);
+      const upcomingAppointments = appointments.filter(isFutureOrTodayAppointment).filter(item => !isClosedDateKey(item.date));
       if(!upcomingAppointments.length){ empty.style.display = 'block'; return; }
       empty.style.display = 'none';
       const sorted = [...upcomingAppointments].sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b));
@@ -1276,6 +1282,7 @@
       const service = document.getElementById('clientService').value;
       const phone = phoneRaw.replace(/\D/g, '');
       if(!selectedDate) return showToast('יש לבחור יום.');
+      if(isDateClosed(selectedDate)) return showToast('המספרה סגורה ביום זה.', true);
       if(!selectedTime) return showToast('יש לבחור שעה פנויה.');
       if(!firstName || !lastName || !phoneRaw) return showToast('יש למלא שם פרטי, שם משפחה וטלפון.');
       if(!/^05\d{8}$/.test(phone)) return showToast('יש להזין מספר פלאפון מלא שמתחיל ב-05.');
@@ -1377,6 +1384,19 @@
 
     window.addEventListener('load', () => {
       setTimeout(() => document.getElementById('loader').classList.add('hide'), 1300);
+    });
+
+
+    // ניקוי אוטומטי של תורים בימים סגורים
+    for(let i = appointments.length - 1; i >= 0; i--){
+      if(isClosedDateKey(appointments[i].date)){
+        appointments.splice(i, 1);
+      }
+    }
+    Object.keys(busyMap).forEach(dateKey => {
+      if(isClosedDateKey(dateKey)){
+        delete busyMap[dateKey];
+      }
     });
 
     const firstOpenDate = (() => {
