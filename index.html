@@ -967,26 +967,50 @@
       return appointmentDateTime(item) >= new Date();
     }
 
+    function hasAvailableFutureSlot(date){
+      if(isDateClosed(date)) return false;
+      const dateKey = formatDateKey(date);
+      const busySlots = busyMap[dateKey] || [];
+      return getSlotsForDate(date).some(time => !busySlots.includes(time) && !isPastSlot(date, time));
+    }
+
     function getDateStatus(date){
       if(isDateClosed(date)) return 'closed';
-      const slots = getSlotsForDate(date);
-      const free = slots.some(time => {
-        const busy = (busyMap[formatDateKey(date)] || []).includes(time);
-        return !busy && !isPastSlot(date, time);
-      });
-      return free ? 'available' : 'busy';
+      return hasAvailableFutureSlot(date) ? 'available' : 'busy';
+    }
+
+    function shouldHideDateChip(date){
+      return sameDay(date, new Date()) && !hasAvailableFutureSlot(date);
+    }
+
+    function ensureSelectedDateIsStillValid(){
+      if(!selectedDate) return;
+      if(!hasAvailableFutureSlot(selectedDate)){
+        selectedDate = null;
+        selectedTime = null;
+        document.getElementById('selectedDayText').textContent = 'עדיין לא נבחר יום';
+        document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
+      }
     }
 
     function renderDays(){
       const daysStrip = document.getElementById('daysStrip');
       daysStrip.innerHTML = '';
-      const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      ensureSelectedDateIsStillValid();
+      const now = new Date();
+      const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let renderedCount = 0;
+      let offset = 0;
 
-      for(let i = 0; i < visibleDays; i++){
+      while(renderedCount < visibleDays && offset < visibleDays + 10){
         const date = new Date(base);
-        date.setDate(base.getDate() + i);
-        const chip = document.createElement('button');
+        date.setDate(base.getDate() + offset);
+        offset++;
+
         const status = getDateStatus(date);
+        if(shouldHideDateChip(date)) continue;
+
+        const chip = document.createElement('button');
         chip.className = `day-chip ${status}`;
         if(selectedDate && sameDay(selectedDate, date)) chip.classList.add('selected');
         chip.innerHTML = `
@@ -1008,6 +1032,7 @@
           chip.disabled = true;
         }
         daysStrip.appendChild(chip);
+        renderedCount++;
       }
     }
 
