@@ -501,7 +501,7 @@
     .music-toggle-wrap{
       position:absolute;
       left:50%;
-      bottom:16px;
+      bottom:0px;
       transform:translateX(-50%);
       z-index:2;
       display:flex;
@@ -644,6 +644,8 @@
         </div>
       </section>
       <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+<audio id="selectSound" src="select.mp3" preload="auto"></audio>
+<audio id="bookSound" src="book.mp3" preload="auto"></audio>
 
       <section class="card animated-panel">
         <div class="booking-head">
@@ -993,7 +995,7 @@
         `;
 
         if(status !== 'closed' && status !== 'busy'){
-          chip.addEventListener('click', () => {
+          chip.addEventListener('click', () => { playSelectSound();
             selectedDate = new Date(date);
             selectedTime = null;
             document.getElementById('selectedDayText').textContent = `${getDayLabel(date)} • ${formatDatePretty(date)}`;
@@ -1047,7 +1049,7 @@
         btn.textContent = time;
         btn.className = 'time-chip free';
 
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', () => { playSelectSound();
           selectedTime = time;
           document.getElementById('selectedTimeText').textContent = time;
           renderSlots();
@@ -1421,7 +1423,7 @@
       bookBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
     }
 
-    function bookAppointment(){
+    function bookAppointment(){ playBookSound();
       const firstName = document.getElementById('clientFirstName').value.trim();
       const lastName = document.getElementById('clientLastName').value.trim();
       const name = `${firstName} ${lastName}`.trim();
@@ -1605,6 +1607,21 @@
       bgMusic.addEventListener('play', () => setMusicState(true));
     }
 
-  </script>
+  
+function playSelectSound(){
+  const a = document.getElementById('selectSound');
+  if(!a) return;
+  a.currentTime = 0;
+  a.play().catch(()=>{});
+}
+
+function playBookSound(){
+  const a = document.getElementById('bookSound');
+  if(!a) return;
+  a.currentTime = 0;
+  a.play().catch(()=>{});
+}
+
+</script>
 </body>
 </html>
