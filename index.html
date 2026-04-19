@@ -510,32 +510,27 @@
       pointer-events:auto;
     }
 
-    .music-toggle{
-      position:relative;
-      width:64px;
-      height:64px;
-      border-radius:50%;
-      border:1px solid rgba(215,180,109,.38);
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.16), rgba(255,255,255,.02) 38%, rgba(0,0,0,.18) 100%),
-        linear-gradient(180deg, rgba(34,27,17,.92), rgba(14,12,10,.96));
-      color:#e8c780;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      box-shadow:
-        0 10px 26px rgba(0,0,0,.34),
-        inset 0 1px 0 rgba(255,255,255,.12),
-        inset 0 0 0 2px rgba(215,180,109,.10);
-      transition:
-        transform .28s ease,
-        box-shadow .28s ease,
-        border-color .28s ease,
-        color .28s ease,
-        opacity .28s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
+   .music-toggle{
+  position:relative;
+  width:64px;
+  height:64px;
+  border:none;
+  border-radius:50%;
+  background:transparent;
+  padding:0;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 10px 26px rgba(0,0,0,.34);
+  transition:transform .28s ease, box-shadow .28s ease, opacity .28s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-toggle::before{
+  display:none;
+}
 
     .music-toggle::before{
       content:"";
@@ -550,11 +545,12 @@
       transform:scale(1.04);
     }
 
-   .music-toggle-icon{
-  width:34px;
-  height:34px;
-  object-fit:contain;
-  filter:drop-shadow(0 3px 8px rgba(0,0,0,.35));
+  .music-toggle-icon{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
   pointer-events:none;
 }
     .music-toggle.playing{
