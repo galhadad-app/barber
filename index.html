@@ -209,12 +209,16 @@
     }
 
     .fields{display:grid;gap:10px;margin-top:14px}
+    .compact-fields{gap:8px}
     .name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .form-row-two > div{min-width:0}
     label{display:block;font-size:12px;color:var(--muted);margin:0 4px 6px}
+    .compact-fields label{margin-bottom:5px}
     input,select{
       width:100%;border:none;outline:none;border-radius:18px;padding:14px;background:#0f131b;
       color:var(--text);border:1px solid var(--line);font-size:15px;
     }
+    .compact-fields input,.compact-fields select{padding:13px 12px;font-size:14px;border-radius:16px}
 
     .owner-code-input{
       width:min(100%, 250px);
@@ -729,8 +733,8 @@
           <h2>פרטי לקוח</h2>
         </div>
 
-        <div class="fields">
-          <div class="name-row">
+        <div class="fields compact-fields">
+          <div class="name-row form-row-two">
             <div>
               <label>שם פרטי</label>
               <input id="clientFirstName" placeholder="השם שלך" />
@@ -740,18 +744,20 @@
               <input id="clientLastName" placeholder="שם משפחה" />
             </div>
           </div>
-          <div>
-            <label>טלפון</label>
-            <input id="clientPhone" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
-          </div>
-          <div>
-            <label>בחירת שירות</label>
-            <select id="clientService">
-              <option value="">בחר שירות</option>
-              <option value="תספורת מבוגר - 60₪">תספורת מבוגר - 60 ש"ח</option>
-              <option value="תספורת מבוגר + זקן - 70₪">תספורת מבוגר + זקן - 70 ש"ח</option>
-              <option value="תספורת ילד - 40₪">תספורת ילד - 40 ש"ח</option>
-            </select>
+          <div class="name-row form-row-two">
+            <div>
+              <label>טלפון</label>
+              <input id="clientPhone" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
+            </div>
+            <div>
+              <label>בחירת שירות</label>
+              <select id="clientService">
+                <option value="">בחר שירות</option>
+                <option value="תספורת מבוגר - 60₪">תספורת מבוגר - 60 ש"ח</option>
+                <option value="תספורת מבוגר + זקן - 70₪">תספורת מבוגר + זקן - 70 ש"ח</option>
+                <option value="תספורת ילד - 40₪">תספורת ילד - 40 ש"ח</option>
+              </select>
+            </div>
           </div>
         </div>
 
