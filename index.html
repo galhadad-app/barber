@@ -1003,6 +1003,9 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <script>
     const OWNER_CODE = "1234";
     const weekdayNames = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
@@ -1015,19 +1018,95 @@
     let activeClientAppointment = null;
     let detailsInitialState = { notes:'', source:'' };
 
-    const appointments = [
-      {name:"יוסי כהן", phone:"0501234567", service:"תספורת מבוגר - 60₪", date:"2026-04-18", time:"09:30", status:"תפוס", source:"דוגמה", notes:"מבקש קצר בצדדים"},
-      {name:"אורן לוי", phone:"0524567890", service:"תספורת מבוגר + זקן - 70₪", date:"2026-04-19", time:"10:30", status:"תפוס", source:"דוגמה", notes:""},
-      {name:"דוד ישראל", phone:"0549876543", service:"תספורת ילד - 40₪", date:"2026-04-20", time:"16:00", status:"תפוס", source:"דוגמה", notes:"רגיש להמתנה ארוכה"}
-    ];
-
-    const busyMap = {
-      "2026-04-18": ["09:30","11:00","11:30","15:00","18:00"],
-      "2026-04-19": ["10:00","10:30","14:30","17:00"],
-      "2026-04-20": ["09:00","12:00","12:30","16:00","19:00"],
-      "2026-04-21": ["13:00","13:30","18:30"],
-      "2026-04-22": ["10:30","11:00","17:30"]
+    const firebaseConfig = {
+      apiKey: "AIzaSyCba0XlBoAWJ1eiH6wqer74sSiMyRKfK2s",
+      authDomain: "game1-9d372.firebaseapp.com",
+      projectId: "game1-9d372",
+      storageBucket: "game1-9d372.appspot.com",
+      messagingSenderId: "387028062033",
+      appId: "1:387028062033:web:7bf29040c7bb4b15d54d70"
     };
+
+    if(!firebase.apps.length){
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const APPOINTMENTS_COLLECTION = 'appointments';
+    let appointmentsUnsubscribe = null;
+
+    const appointments = [];
+    const busyMap = {};
+
+    function normalizeAppointmentRecord(raw = {}, id = ''){
+      return {
+        id,
+        name: raw.name || '',
+        phone: String(raw.phone || ''),
+        service: raw.service || '',
+        date: raw.date || '',
+        time: raw.time || '',
+        status: raw.status || 'active',
+        source: raw.source || 'לקוח',
+        notes: raw.notes || ''
+      };
+    }
+
+    function syncBusyMapFromAppointments(){
+      Object.keys(busyMap).forEach(key => delete busyMap[key]);
+      appointments.forEach(item => {
+        if(!item?.date || !item?.time) return;
+        if(item.status === 'בוטל' || item.status === 'cancelled') return;
+        if(isClosedDateKey(item.date)) return;
+        busyMap[item.date] = busyMap[item.date] || [];
+        if(!busyMap[item.date].includes(item.time)){
+          busyMap[item.date].push(item.time);
+        }
+      });
+    }
+
+    async function createAppointmentInFirebase(payload){
+      const createdRef = await db.collection(APPOINTMENTS_COLLECTION).add({
+        ...payload,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      return createdRef.id;
+    }
+
+    async function updateAppointmentInFirebase(id, updates){
+      if(!id) return;
+      await db.collection(APPOINTMENTS_COLLECTION).doc(id).update({
+        ...updates,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    async function deleteAppointmentFromFirebase(id){
+      if(!id) return;
+      await db.collection(APPOINTMENTS_COLLECTION).doc(id).delete();
+    }
+
+    async function isSlotTakenInFirebase(dateKey, time){
+      const snapshot = await db.collection(APPOINTMENTS_COLLECTION)
+        .where('date', '==', dateKey)
+        .where('time', '==', time)
+        .get();
+      return !snapshot.empty;
+    }
+
+    function subscribeAppointmentsRealtime(){
+      if(appointmentsUnsubscribe) appointmentsUnsubscribe();
+      appointmentsUnsubscribe = db.collection(APPOINTMENTS_COLLECTION).onSnapshot(snapshot => {
+        appointments.length = 0;
+        snapshot.forEach(doc => {
+          appointments.push(normalizeAppointmentRecord(doc.data(), doc.id));
+        });
+        syncBusyMapFromAppointments();
+        rerenderAll();
+      }, err => {
+        console.error(err);
+        showToast('שגיאה בטעינת התורים מהשרת.', true);
+      });
+    }
 
     function showToast(text, isError=false){
       if(isError && navigator.vibrate){
@@ -1346,18 +1425,18 @@
       activeCustomerPhone = null;
     }
 
-    function deleteCustomer(){
+    async function deleteCustomer(){
       if(!activeCustomerPhone) return;
       const normalizedPhone = normalizePhone(activeCustomerPhone);
-      for(let i = appointments.length - 1; i >= 0; i--){
-        if(normalizePhone(appointments[i].phone) === normalizedPhone){
-          releaseBusySlot(appointments[i].date, appointments[i].time);
-          appointments.splice(i, 1);
-        }
+      const customerAppointments = appointments.filter(item => normalizePhone(item.phone) === normalizedPhone);
+      try{
+        await Promise.all(customerAppointments.map(item => deleteAppointmentFromFirebase(item.id)));
+        closeCustomerModal();
+        showToast('הלקוח נמחק.');
+      }catch(err){
+        console.error(err);
+        showToast('שגיאה במחיקת הלקוח.', true);
       }
-      closeCustomerModal();
-      rerenderAll();
-      showToast('הלקוח נמחק.');
     }
 
     function updateDetailsButtonState(){
@@ -1389,19 +1468,26 @@
       activeDetailsItem = null;
     }
 
-    function saveAndCloseDetailsModal(){
+    async function saveAndCloseDetailsModal(){
       if(activeDetailsItem){
         const changed = updateDetailsButtonState();
         if(changed){
-          activeDetailsItem.notes = document.getElementById('detailNotesInput').value.trim();
-          activeDetailsItem.source = document.getElementById('detailSourceInput').value.trim() || '-';
-          detailsInitialState = {
-            notes: activeDetailsItem.notes,
-            source: activeDetailsItem.source === '-' ? '' : activeDetailsItem.source
-          };
-          renderOwnerAppointments();
-          renderOwnerCustomers();
-          showToast('השינויים נשמרו.');
+          const notes = document.getElementById('detailNotesInput').value.trim();
+          const source = document.getElementById('detailSourceInput').value.trim() || '-';
+          try{
+            await updateAppointmentInFirebase(activeDetailsItem.id, { notes, source });
+            activeDetailsItem.notes = notes;
+            activeDetailsItem.source = source;
+            detailsInitialState = {
+              notes: activeDetailsItem.notes,
+              source: activeDetailsItem.source === '-' ? '' : activeDetailsItem.source
+            };
+            showToast('השינויים נשמרו.');
+          }catch(err){
+            console.error(err);
+            showToast('שגיאה בשמירת השינויים.', true);
+            return;
+          }
         }
       }
       closeDetailsModal();
@@ -1414,12 +1500,16 @@
       if(!busyMap[dateKey].length) delete busyMap[dateKey];
     }
 
-    function removeAppointment(item){
-      const index = appointments.indexOf(item);
-      if(index === -1) return false;
-      releaseBusySlot(item.date, item.time);
-      appointments.splice(index, 1);
-      return true;
+    async function removeAppointment(item){
+      if(!item?.id) return false;
+      try{
+        await deleteAppointmentFromFirebase(item.id);
+        return true;
+      }catch(err){
+        console.error(err);
+        showToast('שגיאה בביטול התור.', true);
+        return false;
+      }
     }
 
     function rerenderAll(){
@@ -1430,12 +1520,11 @@
       updateBookButtonState();
     }
 
-    function cancelAppointmentByOwner(){
+    async function cancelAppointmentByOwner(){
       if(!activeDetailsItem) return;
-      const removed = removeAppointment(activeDetailsItem);
+      const removed = await removeAppointment(activeDetailsItem);
       closeDetailsModal();
       if(removed){
-        rerenderAll();
         showToast('התור בוטל והשעה חזרה להיות זמינה.');
       }
     }
@@ -1496,13 +1585,12 @@
       helper.textContent = 'זהו התור העתידי הקרוב שלך.';
     }
 
-    function cancelClientAppointment(){
+    async function cancelClientAppointment(){
       if(!activeClientAppointment) return;
-      const removed = removeAppointment(activeClientAppointment);
+      const removed = await removeAppointment(activeClientAppointment);
       if(removed){
-        rerenderAll();
         showToast('התור בוטל והשעה חזרה להיות זמינה.');
-        closeMyAppointmentModal(); // סגירה וחזרה לעמוד הראשי
+        closeMyAppointmentModal();
       }
     }
 
@@ -1592,7 +1680,7 @@
       bookBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
     }
 
-    function bookAppointment(){ playBookSound();
+    async function bookAppointment(){ playBookSound();
       const firstName = document.getElementById('clientFirstName').value.trim();
       const lastName = document.getElementById('clientLastName').value.trim();
       const name = `${firstName} ${lastName}`.trim();
@@ -1612,29 +1700,35 @@
       }
 
       const dateKey = formatDateKey(selectedDate);
-      busyMap[dateKey] = busyMap[dateKey] || [];
-      if(busyMap[dateKey].includes(selectedTime)) return showToast('השעה הזו כבר נתפסה.');
-      busyMap[dateKey].push(selectedTime);
+      if(busyMap[dateKey]?.includes(selectedTime)) return showToast('השעה הזו כבר נתפסה.', true);
 
-      upsertCustomerAppointment({
-        name,
-        phone,
-        service,
-        date:dateKey,
-        time:selectedTime,
-        status:'נקבע',
-        source:'לקוח',
-        notes:''
-      });
+      try{
+        const slotTaken = await isSlotTakenInFirebase(dateKey, selectedTime);
+        if(slotTaken) return showToast('השעה הזו כבר נתפסה.', true);
 
-      openSuccessModal(formatDatePretty(selectedDate), selectedTime, service);
-      document.getElementById('clientFirstName').value = '';
-      document.getElementById('clientLastName').value = '';
-      document.getElementById('clientPhone').value = '';
-      document.getElementById('clientService').value = '';
-      selectedTime = null;
-      document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
-      rerenderAll();
+        await createAppointmentInFirebase({
+          name,
+          phone,
+          service,
+          date: dateKey,
+          time: selectedTime,
+          status: 'נקבע',
+          source: 'לקוח',
+          notes: ''
+        });
+
+        openSuccessModal(formatDatePretty(selectedDate), selectedTime, service);
+        document.getElementById('clientFirstName').value = '';
+        document.getElementById('clientLastName').value = '';
+        document.getElementById('clientPhone').value = '';
+        document.getElementById('clientService').value = '';
+        selectedTime = null;
+        document.getElementById('selectedTimeText').textContent = 'עדיין לא נבחרה שעה';
+        updateBookButtonState();
+      }catch(err){
+        console.error(err);
+        showToast('שגיאה בשמירת התור.', true);
+      }
     }
 
     document.getElementById('bookBtn').addEventListener('click', bookAppointment);
@@ -1702,6 +1796,7 @@
 
     window.addEventListener('load', () => {
       setTimeout(() => document.getElementById('loader').classList.add('hide'), 1300);
+      subscribeAppointmentsRealtime();
     });
 
 
