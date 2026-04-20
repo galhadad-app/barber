@@ -409,25 +409,68 @@
     @keyframes logoIntro{0%{opacity:0;transform:scale(.82)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
     @keyframes logoFloat{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
 
+    .my-appointment-modal{
+      width:min(92vw,400px);
+      padding:20px 18px 18px;
+      border-radius:26px;
+      background:linear-gradient(180deg,#161b24 0%, #10151d 100%);
+      border:1px solid rgba(255,255,255,.07);
+      box-shadow:0 24px 54px rgba(0,0,0,.38);
+    }
+    .my-appointment-modal{
+      width:min(92vw,258px);
+      padding:12px;
+      border-radius:18px;
+    }
+    .my-appt-head{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom:8px;
+      text-align:center;
+    }
+    .my-appt-head h3{margin:0;font-size:15px;color:#f7e7c3;font-weight:800;line-height:1.2}
+    .my-appt-card{
+      border:none;
+      background:transparent;
+      border-radius:0;
+      padding:0;
+      box-shadow:none;
+    }
+    .my-appt-field-label{display:block;font-size:10px;color:#8e97a8;margin:0 4px 6px}
+    .my-appt-input{
+      width:100%;border:none;outline:none;border-radius:14px;padding:12px;background:#0f131b;
+      color:var(--text);border:1px solid rgba(255,255,255,.08);font-size:14px;text-align:center;letter-spacing:.02em;
+    }
+    .my-appt-input:focus{border-color:rgba(215,180,109,.35);box-shadow:0 0 0 3px rgba(215,180,109,.08)}
+    .my-appt-hint{font-size:11px;color:#8f98a8;text-align:center;line-height:1.55;margin-top:8px;min-height:17px}
     .my-appt-result{
-      margin-top:14px;
+      margin-top:2px;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.08);
-      background:#141925;
-      padding:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+      padding:12px;
     }
     .my-appt-result.hidden{display:none}
-    .my-appt-line{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .my-appt-result-title{margin:0 0 8px 0;text-align:center;font-size:13px;color:#f0ddb2}
+    .my-appt-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
     .my-appt-line:last-child{border-bottom:none}
-    .my-appt-label{font-size:12px;color:var(--muted)}
-    .my-appt-value{font-size:14px;color:var(--text);font-weight:800}
-    .helper-text{font-size:12px;color:var(--muted);text-align:center;line-height:1.7;margin-top:8px}
+    .my-appt-label{font-size:11px;color:#8f98a8}
+    .my-appt-value{font-size:13px;color:var(--text);font-weight:800;text-align:left}
+    .helper-text{font-size:11px;color:#98a1b1;text-align:center;line-height:1.55;margin-top:8px;min-height:17px}
 
     .hidden{display:none !important}
     .my-appt-actions{
       display:flex;
-      gap:10px;
-      margin-top:14px;
+      gap:6px;
+      margin-top:10px;
+    }
+    .my-appointment-modal .my-appt-actions > button{
+      flex:1;
+      margin-top:0;
+      padding:10px 8px;
+      font-size:13px;
+      border-radius:14px;
     }
 
     @media (max-width:560px){
@@ -814,23 +857,22 @@
 
   
   <div class="modal-backdrop" id="myAppointmentModal">
-    <div class="modal">
-      <div id="myAppointmentLookupSection">
-        <h3>יש לי כבר תור</h3>
-        <p class="modal-subtitle">הזן את מספר הפלאפון שלך כדי לראות את התור העתידי הקרוב ולבטל אותו במידת הצורך.</p>
-        <div class="fields" style="margin-top:0">
-          <div>
-            <label>פלאפון</label>
-            <input id="myAppointmentPhoneInput" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
-          </div>
-        </div>
-        <div class="modal-actions">
+    <div class="modal my-appointment-modal">
+      <div class="my-appt-head">
+        <h3>יש לי תור</h3>
+      </div>
+
+      <div id="myAppointmentLookupSection" class="my-appt-card">
+        <label class="my-appt-field-label" for="myAppointmentPhoneInput">מספר פלאפון</label>
+        <input id="myAppointmentPhoneInput" class="my-appt-input" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" />
+        <div class="my-appt-actions">
           <button class="primary-btn" id="findMyAppointmentBtn">מצא תור</button>
           <button class="secondary-btn" id="closeMyAppointmentBtn">סגור</button>
         </div>
       </div>
 
       <div id="myAppointmentResult" class="my-appt-result hidden">
+        <div class="my-appt-result-title">פרטי התור שלך</div>
         <div class="my-appt-line"><span class="my-appt-label">שם</span><span class="my-appt-value" id="myApptName">-</span></div>
         <div class="my-appt-line"><span class="my-appt-label">תאריך</span><span class="my-appt-value" id="myApptDate">-</span></div>
         <div class="my-appt-line"><span class="my-appt-label">שעה</span><span class="my-appt-value" id="myApptTime">-</span></div>
@@ -841,7 +883,7 @@
         </div>
       </div>
 
-      <div class="helper-text" id="myAppointmentHelperText">אפשר לבטל רק תור עתידי.</div>
+      <div class="my-appt-hint" id="myAppointmentHelperText">אפשר לבטל רק תור עתידי.</div>
     </div>
   </div>
 
