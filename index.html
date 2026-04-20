@@ -1037,16 +1037,40 @@
     const appointments = [];
     const busyMap = {};
 
+    function normalizeSourceLabel(source){
+      const value = String(source || '').trim().toLowerCase();
+      if(!value) return 'אפליקציה';
+      if(value.includes('whatsapp') || value.includes('וואטסאפ')) return 'וואטסאפ';
+      if(value.includes('app') || value.includes('אפליקציה') || value.includes('לקוח')) return 'אפליקציה';
+      return source;
+    }
+
+    function normalizeStatusLabel(status){
+      const value = String(status || '').trim().toLowerCase();
+      if(!value) return 'נקבע';
+      if(value === 'active' || value === 'confirmed' || value === 'scheduled') return 'נקבע';
+      if(value === 'cancelled' || value === 'canceled') return 'בוטל';
+      return status;
+    }
+
+    function formatDisplayPhone(phone){
+      const digits = String(phone || '').replace(/\D/g, '');
+      if(/^9720\d{8}$/.test(digits)) return `0${digits.slice(4)}`;
+      if(/^972\d{9}$/.test(digits)) return `0${digits.slice(3)}`;
+      return digits;
+    }
+
     function normalizeAppointmentRecord(raw = {}, id = ''){
+      const source = normalizeSourceLabel(raw.source);
       return {
         id,
-        name: raw.name || '',
-        phone: String(raw.phone || ''),
-        service: raw.service || '',
+        name: raw.name || (source === 'וואטסאפ' ? 'לקוח מוואטסאפ' : ''),
+        phone: formatDisplayPhone(raw.phone || ''),
+        service: raw.service || (source === 'וואטסאפ' ? 'לא נבחר' : ''),
         date: raw.date || '',
         time: raw.time || '',
-        status: raw.status || 'active',
-        source: raw.source || 'לקוח',
+        status: normalizeStatusLabel(raw.status),
+        source,
         notes: raw.notes || ''
       };
     }
@@ -1376,7 +1400,8 @@
 
       empty.style.display = 'none';
       body.innerHTML = filteredCustomers.map(customer => {
-        const phoneDisplay = customer.phone ? `<a class="phone-link" href="tel:${customer.phone}" onclick="event.stopPropagation()">${customer.phone}</a>` : '-';
+        const displayPhone = formatDisplayPhone(customer.phone);
+        const phoneDisplay = displayPhone ? `<a class="phone-link" href="tel:${displayPhone}" onclick="event.stopPropagation()">${displayPhone}</a>` : '-';
         return `<tr class="clickable-row customer-row" data-phone="${customer.phone}"><td>${customer.name}</td><td>${phoneDisplay}</td><td>${customer.visits}</td></tr>`;
       }).join('');
 
@@ -1396,7 +1421,8 @@
       const sorted = [...upcomingAppointments].sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b));
       body.innerHTML = sorted.map((a, index) => {
         const dateDisplay = a.date === todayKey ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(a.date);
-        const phoneDisplay = a.phone ? `<a class="phone-link" href="tel:${a.phone}" onclick="event.stopPropagation()">${a.phone}</a>` : '-';
+        const displayPhone = formatDisplayPhone(a.phone);
+        const phoneDisplay = displayPhone ? `<a class="phone-link" href="tel:${displayPhone}" onclick="event.stopPropagation()">${displayPhone}</a>` : '-';
         return `<tr class="clickable-row" data-index="${index}"><td>${a.name}</td><td>${dateDisplay}</td><td>${a.time}</td><td>${phoneDisplay}</td></tr>`;
       }).join('');
       body.querySelectorAll('.clickable-row').forEach((row) => {
@@ -1414,7 +1440,7 @@
       if(!customer) return;
       activeCustomerPhone = customer.phone;
       document.getElementById('customerCardName').textContent = customer.name || '-';
-      document.getElementById('customerCardPhone').textContent = customer.phone || '-';
+      document.getElementById('customerCardPhone').textContent = formatDisplayPhone(customer.phone) || '-';
       document.getElementById('customerCardVisits').textContent = customer.visits || 0;
       document.getElementById('customerCardLastVisit').textContent = customer.lastDate ? `${formatDatePrettyFromKey(customer.lastDate)} בשעה ${customer.lastTime || '-'}` : '-';
       document.getElementById('customerModal').classList.add('show');
@@ -1455,7 +1481,7 @@
       document.getElementById('detailName').textContent = item.name || '-';
       document.getElementById('detailDate').innerHTML = item.date === formatDateKey(today) ? '<span class="today-badge">היום</span>' : formatDatePrettyFromKey(item.date);
       document.getElementById('detailTime').textContent = item.time || '-';
-      document.getElementById('detailPhone').textContent = item.phone || '-';
+      document.getElementById('detailPhone').textContent = formatDisplayPhone(item.phone) || '-';
       document.getElementById('detailService').textContent = item.service || '-';
       document.getElementById('detailNotesInput').value = notes;
       document.getElementById('detailSourceInput').value = source;
@@ -1686,7 +1712,7 @@
       const name = `${firstName} ${lastName}`.trim();
       const phoneRaw = document.getElementById('clientPhone').value.trim();
       const service = document.getElementById('clientService').value;
-      const phone = phoneRaw.replace(/\D/g, '');
+      const phone = formatDisplayPhone(phoneRaw);
       if(!selectedDate) return showToast('יש לבחור יום.');
       if(isDateClosed(selectedDate)) return showToast('המספרה סגורה ביום זה.', true);
       if(!selectedTime) return showToast('יש לבחור שעה פנויה.');
@@ -1713,7 +1739,7 @@
           date: dateKey,
           time: selectedTime,
           status: 'נקבע',
-          source: 'לקוח',
+          source: 'אפליקציה',
           notes: ''
         });
 
