@@ -287,40 +287,52 @@
     .modal-subtitle{margin-top:0;margin-bottom:14px;color:var(--muted);text-align:center;font-size:13px;line-height:1.7}
 
     .success-modal{
+  text-align:center;
       width:min(92vw,360px);
       background:#0f1115;
       color:#f5f5f5;
       border:none;
       border-radius:28px;
       box-shadow:0 24px 60px rgba(0,0,0,.42);
-      padding:28px 24px;
+      padding:26px 22px;
       text-align:center;
       position:relative;
       overflow:hidden;
       transform-origin:center center;
     }
-    .modal-backdrop.show .success-modal{animation:successPop .32s ease}
+    .modal-backdrop.show .success-modal{
+  text-align:center;animation:successPop .32s ease}
     .success-modal::before,
     .success-modal::after{display:none}
-    .success-icon{
-      width:auto;
-      height:auto;
-      margin:0 0 16px;
-      border-radius:0;
-      display:block;
-      font-size:34px;
-      font-weight:700;
-      background:none;
-      color:rgba(245,245,245,.85);
-      box-shadow:none;
-      position:relative;
-      z-index:2;
-      line-height:1;
-    }
-    .modal-backdrop.show .success-icon{animation:none}
+    
+.success-icon{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 14px;
+  font-size:42px;
+  font-weight:900;
+  color:#4cd964;
+  animation:popIn .4s ease;
+}
+
+    .modal-backdrop.show 
+.success-icon{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 14px;
+  font-size:42px;
+  font-weight:900;
+  color:#4cd964;
+  animation:popIn .4s ease;
+}
+
     .success-icon::after{display:none}
     .success-confetti{display:none}
     @keyframes successPop{0%{transform:translateY(10px) scale(.98);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+    @keyframes checkPopSoft{0%{transform:scale(.55);opacity:0}65%{transform:scale(1.16);opacity:1}100%{transform:scale(1)}}
+    @keyframes checkGlow{0%,100%{text-shadow:0 0 0 rgba(67,196,99,0)}50%{text-shadow:0 0 14px rgba(67,196,99,.28)}}
 
     .success-modal h3{
       margin:0 0 8px;
@@ -339,14 +351,14 @@
       box-shadow:none;
     }
     .success-modal .success-details:first-of-type{
-      display:inline-block;
+      display:table;
       width:auto;
-      max-width:100%;
-      margin:0 auto 20px;
-      padding:10px 16px;
-      border:1px solid rgba(230,194,122,.22);
-      border-radius:16px;
-      background:rgba(230,194,122,.06);
+      max-width:max-content;
+      margin:0 auto 16px;
+      padding:7px 10px;
+      border:1px solid rgba(230,194,122,.18);
+      border-radius:12px;
+      background:rgba(230,194,122,.05);
     }
     .success-modal .success-details:last-of-type{
       margin:0 0 26px;
@@ -355,12 +367,14 @@
       display:none;
     }
     .success-datetime{
+      display:block;
       font-size:16px;
       font-weight:600;
-      margin:0 0 20px;
-      letter-spacing:.5px;
+      margin:0;
+      letter-spacing:.35px;
       color:#e6c27a;
-      line-height:1.5;
+      line-height:1.25;
+      white-space:nowrap;
     }
     .success-note{
       margin:0 0 26px;
@@ -563,8 +577,20 @@
       .slots-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;}
       .time-chip{min-height:38px;padding:7px 5px;font-size:20px;border-radius:12px;}
       .day-chip{min-width:84px;padding:11px 8px}
-      .success-modal{padding:24px 18px 20px}
-      .success-icon{width:66px;height:66px;font-size:30px}
+      .success-modal{
+  text-align:center;padding:24px 18px 20px}
+      
+.success-icon{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0 auto 14px;
+  font-size:42px;
+  font-weight:900;
+  color:#4cd964;
+  animation:popIn .4s ease;
+}
+
       .success-btn{width:100%}
     }
     .animated-panel{
