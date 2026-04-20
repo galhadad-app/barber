@@ -1344,6 +1344,7 @@
     function getUniqueCustomers(){
       const customerMap = new Map();
       appointments.forEach(item => {
+        if(item.status === 'cancelled' || item.status === 'בוטל') return;
         const phone = normalizePhone(item.phone);
         if(!phone) return;
         const existing = customerMap.get(phone);
@@ -1415,7 +1416,10 @@
       const empty = document.getElementById('ownerEmpty');
       body.innerHTML = '';
       const todayKey = formatDateKey(today);
-      const upcomingAppointments = appointments.filter(isFutureOrTodayAppointment).filter(item => !isClosedDateKey(item.date));
+      const upcomingAppointments = appointments
+        .filter(isFutureOrTodayAppointment)
+        .filter(item => !isClosedDateKey(item.date))
+        .filter(item => item.status !== 'cancelled' && item.status !== 'בוטל');
       if(!upcomingAppointments.length){ empty.style.display = 'block'; return; }
       empty.style.display = 'none';
       const sorted = [...upcomingAppointments].sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b));
@@ -1590,7 +1594,12 @@
       }
 
       const found = appointments
-        .filter(item => normalizePhone(item.phone) === phone && isFutureOrTodayAppointment(item))
+        .filter(item =>
+          normalizePhone(item.phone) === phone &&
+          isFutureOrTodayAppointment(item) &&
+          item.status !== 'cancelled' &&
+          item.status !== 'בוטל'
+        )
         .sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b))[0];
 
       if(!found){
@@ -1681,7 +1690,12 @@
     function findFutureAppointmentByPhone(phone){
       const normalizedPhone = normalizePhone(phone);
       return appointments
-        .filter(item => normalizePhone(item.phone) === normalizedPhone && isFutureOrTodayAppointment(item))
+        .filter(item =>
+          normalizePhone(item.phone) === normalizedPhone &&
+          isFutureOrTodayAppointment(item) &&
+          item.status !== 'cancelled' &&
+          item.status !== 'בוטל'
+        )
         .sort((a,b) => appointmentDateTime(a) - appointmentDateTime(b))[0] || null;
     }
 
