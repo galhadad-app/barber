@@ -209,6 +209,7 @@
     }
 
     .fields{display:grid;gap:10px;margin-top:14px}
+    .name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     label{display:block;font-size:12px;color:var(--muted);margin:0 4px 6px}
     input,select{
       width:100%;border:none;outline:none;border-radius:18px;padding:14px;background:#0f131b;
@@ -427,6 +428,11 @@
       display:flex;
       gap:10px;
       margin-top:14px;
+    }
+
+    @media (max-width:560px){
+      .name-row{grid-template-columns:1fr 1fr;gap:8px;}
+      .name-row input{padding:13px 12px;font-size:14px;}
     }
 
     @media (max-width:640px){
@@ -681,13 +687,15 @@
         </div>
 
         <div class="fields">
-          <div>
-            <label>שם פרטי</label>
-            <input id="clientFirstName" placeholder="השם שלך" />
-          </div>
-          <div>
-            <label>שם משפחה</label>
-            <input id="clientLastName" placeholder="שם משפחה" />
+          <div class="name-row">
+            <div>
+              <label>שם פרטי</label>
+              <input id="clientFirstName" placeholder="השם שלך" />
+            </div>
+            <div>
+              <label>שם משפחה</label>
+              <input id="clientLastName" placeholder="שם משפחה" />
+            </div>
           </div>
           <div>
             <label>טלפון</label>
